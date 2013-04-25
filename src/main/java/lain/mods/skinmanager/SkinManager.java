@@ -35,9 +35,12 @@ import cpw.mods.fml.relauncher.Side;
 public class SkinManager implements IPacketHandler, IConnectionHandler
 {
 
+    @ConfigUtils.SingleComment("by setting this to true, this server will force connected LainCraft clients to use specific servers defined in this file.")
     private static boolean config_forceSkins = false;
-    private static String config_CloakServer = "http://skins.minecraft.net/MinecraftCloaks/%s.png";
+    @ConfigUtils.SingleComment("official server: http://skins.minecraft.net/MinecraftSkins/%s.png" + "\n" + "old official server: http://s3.amazonaws.com/MinecraftSkins/%s.png" + "\n" + "McMySkin: http://mcmyskin.com/skins.php?name=%s.png" + "\n" + "SkinMe: http://sm.skinme.co/get.php?type=skin&file=%s.png")
     private static String config_SkinServer = "http://skins.minecraft.net/MinecraftSkins/%s.png";
+    @ConfigUtils.SingleComment("official server: http://skins.minecraft.net/MinecraftCloaks/%s.png" + "\n" + "old official server: http://s3.amazonaws.com/MinecraftCloaks/%s.png" + "\n" + "McMySkin: http://mcmyskin.com/skins.php?cape&name=%s.png" + "\n" + "SkinMe: http://sm.skinme.co/get.php?type=cloak&file=%s.png")
+    private static String config_CloakServer = "http://skins.minecraft.net/MinecraftCloaks/%s.png";
 
     @Mod.Metadata
     public static ModMetadata metadata;

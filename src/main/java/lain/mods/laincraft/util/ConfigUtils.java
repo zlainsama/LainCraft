@@ -1,5 +1,9 @@
 package lain.mods.laincraft.util;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -10,6 +14,15 @@ import net.minecraftforge.common.Property;
 
 public class ConfigUtils
 {
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.FIELD })
+    public static @interface SingleComment
+    {
+
+        public String value();
+
+    }
 
     public static void loadFromConfig(Configuration config, Class cls, String prefix, String category)
     {
@@ -60,21 +73,20 @@ public class ConfigUtils
                         prop = new Property(n, "", Property.Type.STRING);
                         prop.set((String) o);
                     }
-                    else if (o != null)
+                    else if (o instanceof String[])
                     {
                         prop = new Property(n, "", Property.Type.STRING);
-                        prop.set(o.toString());
+                        prop.set((String[]) o);
                     }
-                    else
-                    {
-                        prop = new Property(n, "", Property.Type.STRING);
-                        prop.set("");
-                    }
+                    if (f.isAnnotationPresent(SingleComment.class))
+                        prop.comment = f.getAnnotation(SingleComment.class).value();
                     cate.put(n, prop);
                 }
                 else
                 {
                     Property prop = cate.get(n);
+                    if (f.isAnnotationPresent(SingleComment.class))
+                        prop.comment = f.getAnnotation(SingleComment.class).value();
                     switch (prop.getType())
                     {
                         case INTEGER:
@@ -88,7 +100,12 @@ public class ConfigUtils
                             break;
                         case STRING:
                         default:
-                            f.set(null, prop.getString());
+                            if (prop.isList())
+                                f.set(null, prop.getStringList());
+                            else if (String[].class.isAssignableFrom(f.getType()))
+                                f.set(null, new String[] { prop.getString() });
+                            else
+                                f.set(null, prop.getString());
                             break;
                     }
                 }
@@ -147,16 +164,13 @@ public class ConfigUtils
                     prop = new Property(n, "", Property.Type.STRING);
                     prop.set((String) o);
                 }
-                else if (o != null)
+                else if (o instanceof String[])
                 {
                     prop = new Property(n, "", Property.Type.STRING);
-                    prop.set(o.toString());
+                    prop.set((String[]) o);
                 }
-                else
-                {
-                    prop = new Property(n, "", Property.Type.STRING);
-                    prop.set("");
-                }
+                if (f.isAnnotationPresent(SingleComment.class))
+                    prop.comment = f.getAnnotation(SingleComment.class).value();
                 cate.put(n, prop);
             }
             catch (Throwable t)
