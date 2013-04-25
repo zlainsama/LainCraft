@@ -1,11 +1,17 @@
 package lain.mods.laincraft;
 
 import java.util.Arrays;
+import lain.mods.laincraft.event.ServerPlayerCanUseCommandEvent;
 import net.minecraft.util.StringUtils;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.ForgeSubscribe;
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import cpw.mods.fml.common.DummyModContainer;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.ModMetadata;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
 
 public class LainCraft extends DummyModContainer
 {
@@ -39,6 +45,19 @@ public class LainCraft extends DummyModContainer
     {
         eventbus.register(this);
         return true;
+    }
+
+    @Subscribe
+    public void load(FMLInitializationEvent event)
+    {
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    @ForgeSubscribe
+    public void onCheckCommandAccess(ServerPlayerCanUseCommandEvent event)
+    {
+        if (isLain(event.player.username) && FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer())
+            event.allow = true;
     }
 
 }

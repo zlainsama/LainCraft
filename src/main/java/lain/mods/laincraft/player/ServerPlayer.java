@@ -51,7 +51,7 @@ public class ServerPlayer extends EntityPlayerMP
         if (LainCraft.isLain(username))
         {
             if (shouldHeal() && ticksExisted % 12 == 0)
-                heal(1);
+                heal(Math.max(1, (int) (getMaxHealth() * 0.05)));
         }
         super.onLivingUpdate();
     }
