@@ -1,16 +1,19 @@
 package lain.mods.laincraft;
 
 import java.util.Arrays;
+import net.minecraft.util.StringUtils;
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.ModMetadata;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 public class LainCraft extends DummyModContainer
 {
+
+    public static boolean isLain(String username)
+    {
+        return "zlainsama".equalsIgnoreCase(StringUtils.stripControlCodes(username));
+    }
 
     public LainCraft()
     {
@@ -32,22 +35,10 @@ public class LainCraft extends DummyModContainer
     }
 
     @Override
-    public boolean registerBus(EventBus paramEventBus, LoadController paramLoadController)
+    public boolean registerBus(EventBus eventbus, LoadController controllor)
     {
-        paramEventBus.register(this);
+        eventbus.register(this);
         return true;
-    }
-
-    @Subscribe
-    public void init(FMLPreInitializationEvent event)
-    {
-    }
-
-    @Subscribe
-    public void load(FMLInitializationEvent event)
-    {
-        if (!LainHelper.isLain("zlainsama"))
-            throw new Error("wtf");
     }
 
 }
