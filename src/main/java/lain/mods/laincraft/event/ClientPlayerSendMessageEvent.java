@@ -15,6 +15,7 @@ public class ClientPlayerSendMessageEvent extends Event
         MinecraftForge.EVENT_BUS.post(event);
         return event;
     }
+
     public final EntityPlayer player;
 
     public String message;

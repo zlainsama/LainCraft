@@ -13,6 +13,7 @@ public class ServerPlayerCanUseCommandEvent extends Event
         MinecraftForge.EVENT_BUS.post(event);
         return event;
     }
+
     public final EntityPlayer player;
     public boolean allow;
     public final int requiredLevel;
