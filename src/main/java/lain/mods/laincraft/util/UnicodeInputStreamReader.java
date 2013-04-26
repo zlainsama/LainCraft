@@ -59,6 +59,12 @@ public class UnicodeInputStreamReader extends Reader
         this.input = new InputStreamReader(pbStream, enc);
     }
 
+    @Override
+    public void close() throws IOException
+    {
+        input.close();
+    }
+
     public String getEncoding()
     {
         return input.getEncoding();
@@ -68,11 +74,5 @@ public class UnicodeInputStreamReader extends Reader
     public int read(char[] cbuf, int off, int len) throws IOException
     {
         return input.read(cbuf, off, len);
-    }
-
-    @Override
-    public void close() throws IOException
-    {
-        input.close();
     }
 }

@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -19,6 +20,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import lain.mods.laincraft.event.ClientPlayerSendMessageEvent;
 import lain.mods.laincraft.util.ConfigUtils;
+import lain.mods.laincraft.util.FileLocator;
+import lain.mods.laincraft.util.StreamUtils;
 import lain.mods.laincraft.util.UnicodeInputStreamReader;
 import lain.mods.molanguage.util.Localization;
 import net.minecraft.util.StringTranslate;
@@ -58,9 +61,93 @@ public class MoLanguage
     private Localization lo_extra;
     private Localization lo_online;
     private File baseDir;
-
+    private Set<String> modsList;
     private Set<String> loadedFiles_local;
     private Set<String> loadedFiles_online;
+
+    public void dump()
+    {
+        if (config_dump)
+        {
+            try
+            {
+                if (lo_vanilla == null)
+                    lo_vanilla = new Localization();
+                loadVanilla();
+                for (String lang : (Set<String>) StringTranslate.getInstance().getLanguageList().keySet())
+                    if (config_dumpLang.isEmpty() || config_dumpLang.equals(lang))
+                        dump(lang);
+                config.load();
+                ConfigUtils.loadFromConfig(config, getClass(), "config_", Configuration.CATEGORY_GENERAL);
+                config_dump = false;
+                ConfigUtils.saveToConfig(config, getClass(), "config_", Configuration.CATEGORY_GENERAL);
+                config.save();
+            }
+            catch (Throwable t)
+            {
+                t.printStackTrace();
+            }
+            finally
+            {
+                lo_vanilla = null; // detach from JVM
+            }
+        }
+    }
+
+    public void dump(String lang) throws IOException
+    {
+        File dir = new File(baseDir, "langDump");
+        if (!dir.exists() && !dir.mkdirs())
+            throw new Error();
+        File f = new File(dir, lang + ".lang");
+        String prevLang = StringTranslate.getInstance().getCurrentLanguage();
+        StringTranslate.getInstance().setLanguage(lang, true);
+        Properties data = StringTranslate.getInstance().translateTable;
+        String newLine = System.getProperty("line.separator");
+        FileOutputStream fos = new FileOutputStream(f);
+        BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(fos, "UTF-8"));
+        buffer.write("#" + lang + newLine);
+        buffer.write("# the first line (above this, which is a comment) IS REQUIRED for MoLanguage to verify lang files");
+        String[] keys = data.stringPropertyNames().toArray(new String[data.size()]);
+        for (String k : keys)
+        {
+            String v = data.getProperty(k);
+            if (v.equals(lo_vanilla.get(k, lang)))
+                continue;
+            if (!config_dumpExtra)
+            {
+                if (v.equals(lo_extra.get(k, lang)))
+                    continue;
+                if (lo_online != null && v.equals(lo_online.get(k, lang)))
+                    continue;
+            }
+            buffer.write(k + "=" + v + newLine);
+        }
+        buffer.write("# dump on " + DateFormat.getInstance().format(new Date()));
+        buffer.close();
+        fos.close();
+        StringTranslate.getInstance().setLanguage(prevLang, true);
+    }
+
+    public void importData()
+    {
+        if (lo_extra != null)
+            importData(lo_extra);
+        if (lo_online != null)
+            importData(lo_online);
+    }
+
+    public void importData(Localization data)
+    {
+        for (String lang : data.getTableNames())
+            importData(data.getTable(lang), lang);
+    }
+
+    public void importData(Map<String, String> data, String lang)
+    {
+        for (String k : data.keySet())
+            LanguageRegistry.instance().addStringLocalization(k, lang, data.get(k));
+    }
 
     @Mod.PreInit
     public void init(FMLPreInitializationEvent event)
@@ -94,55 +181,6 @@ public class MoLanguage
             MinecraftForge.EVENT_BUS.register(this);
             loadExtra();
             loadOnline();
-        }
-    }
-
-    @ForgeSubscribe
-    public void onSendMessage(ClientPlayerSendMessageEvent event)
-    {
-        if ("#molang reload".equals(event.message))
-        {
-            loadExtra();
-            loadOnline();
-            event.setCanceled(true);
-        }
-        else if ("#molang dump".equals(event.message))
-        {
-            config_dump = true;
-            dump();
-            event.setCanceled(true);
-        }
-        else if ("#molang list local".equals(event.message))
-        {
-            StringBuilder s = new StringBuilder("local language files:");
-            if (loadedFiles_local.isEmpty())
-                s.append(" none");
-            else
-                for (String f : loadedFiles_local)
-                    s.append(" " + f);
-            event.player.sendChatToPlayer(s.toString());
-            event.setCanceled(true);
-        }
-        else if ("#molang list online".equals(event.message))
-        {
-            StringBuilder s = new StringBuilder("online language files:");
-            if (loadedFiles_online.isEmpty())
-                s.append(" none");
-            else
-                for (String f : loadedFiles_online)
-                    s.append(" " + f);
-            event.player.sendChatToPlayer(s.toString());
-            event.setCanceled(true);
-        }
-    }
-
-    @Mod.PostInit
-    public void modsLoaded(FMLPostInitializationEvent event)
-    {
-        if (config_enabled)
-        {
-            importData();
-            dump();
         }
     }
 
@@ -291,10 +329,12 @@ public class MoLanguage
             loadedFiles_online.clear();
             if (lo_online == null)
                 lo_online = new Localization();
-            final File dir = new File(baseDir, "langDownload");
+            final File dir = new File(baseDir, "langOnlineTemp");
+            if (dir.exists())
+                dir.delete();
             if (!dir.exists() && !dir.mkdirs())
                 throw new Error();
-            final Set<String> modsList = new HashSet<String>();
+            modsList = new HashSet<String>();
             try
             {
                 for (ModContainer mc : Loader.instance().getActiveModList())
@@ -312,10 +352,19 @@ public class MoLanguage
                 {
                     try
                     {
-                        // TODO
                         for (String url0 : config_urlProviders)
                         {
-
+                            try
+                            {
+                                FileLocator.useCache = false;
+                                File list = FileLocator.getFile(String.format(url0, "lang.list"));
+                                if (list.exists())
+                                    loadOnline(list, url0, dir);
+                            }
+                            catch (Throwable t)
+                            {
+                                t.printStackTrace();
+                            }
                         }
                     }
                     catch (Throwable t)
@@ -324,11 +373,81 @@ public class MoLanguage
                     }
                     finally
                     {
+                        modsList = null; // detach from JVM
                         loadExtra(lo_online, dir);
                         importData();
                     }
                 }
             }).run();
+        }
+    }
+
+    public void loadOnline(File list, String root, File dir)
+    {
+        BufferedReader buf = null;
+        try
+        {
+            buf = new BufferedReader(new UnicodeInputStreamReader(new FileInputStream(list), "UTF-8"));
+            String line = null;
+            while ((line = buf.readLine()) != null)
+            {
+                line = line.trim();
+                if (!line.startsWith("#"))
+                {
+                    // modid filename lang md5
+                    String[] parts = line.split(" ");
+                    if (parts != null && parts.length == 4)
+                    {
+                        if (modsList.contains(parts[0]) || "*".equals(parts[0]))
+                        {
+                            FileLocator.useCache = true;
+                            String url = String.format(root, parts[1]);
+                            File f = FileLocator.getFile(url);
+                            int retries = 0;
+                            while (++retries <= 3)
+                            {
+                                if (!f.exists() || !StreamUtils.calc_md5(StreamUtils.readFully(new FileInputStream(f))).equals(parts[3].toLowerCase()))
+                                {
+                                    FileLocator.useCache = false;
+                                    f = FileLocator.getFile(url);
+                                }
+                                else
+                                    break;
+                            }
+                            if (f.exists() && StreamUtils.calc_md5(StreamUtils.readFully(new FileInputStream(f))).equals(parts[3].toLowerCase()))
+                            {
+                                File f1 = new File(dir, parts[1]);
+                                if (f1.getParentFile() != null && !f1.getParentFile().exists())
+                                    f1.mkdirs();
+                                FileOutputStream fos = new FileOutputStream(f1);
+                                fos.write(("#" + parts[2] + System.getProperty(System.getProperty("line.separator"))).getBytes("UTF-8"));
+                                fos.write(StreamUtils.readFully(new FileInputStream(f)));
+                                fos.close();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (buf != null)
+                try
+                {
+                    buf.close();
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
         }
     }
 
@@ -406,88 +525,53 @@ public class MoLanguage
         }
     }
 
-    public void dump()
+    @Mod.PostInit
+    public void modsLoaded(FMLPostInitializationEvent event)
     {
-        if (config_dump)
+        if (config_enabled)
         {
-            try
-            {
-                if (lo_vanilla == null)
-                    lo_vanilla = new Localization();
-                loadVanilla();
-                for (String lang : (Set<String>) StringTranslate.getInstance().getLanguageList().keySet())
-                    if (config_dumpLang.isEmpty() || config_dumpLang.equals(lang))
-                        dump(lang);
-                config.load();
-                ConfigUtils.loadFromConfig(config, getClass(), "config_", Configuration.CATEGORY_GENERAL);
-                config_dump = false;
-                ConfigUtils.saveToConfig(config, getClass(), "config_", Configuration.CATEGORY_GENERAL);
-                config.save();
-            }
-            catch (Throwable t)
-            {
-                t.printStackTrace();
-            }
-            finally
-            {
-                lo_vanilla = null; // detach from JVM
-            }
+            importData();
+            dump();
         }
     }
 
-    public void dump(String lang) throws IOException
+    @ForgeSubscribe
+    public void onSendMessage(ClientPlayerSendMessageEvent event)
     {
-        File dir = new File(baseDir, "langDump");
-        if (!dir.exists() && !dir.mkdirs())
-            throw new Error();
-        File f = new File(dir, lang + ".lang");
-        String prevLang = StringTranslate.getInstance().getCurrentLanguage();
-        StringTranslate.getInstance().setLanguage(lang, true);
-        Properties data = StringTranslate.getInstance().translateTable;
-        String newLine = System.getProperty("line.separator");
-        FileOutputStream fos = new FileOutputStream(f);
-        BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(fos, "UTF-8"));
-        buffer.write("#" + lang + newLine);
-        buffer.write("# the first line (above this, which is a comment) IS REQUIRED for MoLanguage to verify lang files");
-        String[] keys = data.stringPropertyNames().toArray(new String[data.size()]);
-        for (String k : keys)
+        if ("#molang reload".equals(event.message))
         {
-            String v = data.getProperty(k);
-            if (v.equals(lo_vanilla.get(k, lang)))
-                continue;
-            if (!config_dumpExtra)
-            {
-                if (v.equals(lo_extra.get(k, lang)))
-                    continue;
-                if (lo_online != null && v.equals(lo_online.get(k, lang)))
-                    continue;
-            }
-            buffer.write(k + "=" + v + newLine);
+            loadExtra();
+            loadOnline();
+            event.setCanceled(true);
         }
-        buffer.write("# dump on " + DateFormat.getInstance().format(new Date()));
-        buffer.close();
-        fos.close();
-        StringTranslate.getInstance().setLanguage(prevLang, true);
-    }
-
-    public void importData()
-    {
-        if (lo_extra != null)
-            importData(lo_extra);
-        if (lo_online != null)
-            importData(lo_online);
-    }
-
-    public void importData(Localization data)
-    {
-        for (String lang : data.getTableNames())
-            importData(data.getTable(lang), lang);
-    }
-
-    public void importData(Map<String, String> data, String lang)
-    {
-        for (String k : data.keySet())
-            LanguageRegistry.instance().addStringLocalization(k, lang, data.get(k));
+        else if ("#molang dump".equals(event.message))
+        {
+            config_dump = true;
+            dump();
+            event.setCanceled(true);
+        }
+        else if ("#molang list local".equals(event.message))
+        {
+            StringBuilder s = new StringBuilder("local language files:");
+            if (loadedFiles_local.isEmpty())
+                s.append(" none");
+            else
+                for (String f : loadedFiles_local)
+                    s.append(" " + f);
+            event.player.sendChatToPlayer(s.toString());
+            event.setCanceled(true);
+        }
+        else if ("#molang list online".equals(event.message))
+        {
+            StringBuilder s = new StringBuilder("online language files:");
+            if (loadedFiles_online.isEmpty())
+                s.append(" none");
+            else
+                for (String f : loadedFiles_online)
+                    s.append(" " + f);
+            event.player.sendChatToPlayer(s.toString());
+            event.setCanceled(true);
+        }
     }
 
 }
