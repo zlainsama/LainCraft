@@ -17,11 +17,14 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import lain.mods.laincraft.event.ClientPlayerSendMessageEvent;
 import lain.mods.laincraft.util.ConfigUtils;
 import lain.mods.laincraft.util.UnicodeInputStreamReader;
 import lain.mods.molanguage.util.Localization;
 import net.minecraft.util.StringTranslate;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.ForgeSubscribe;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.ModContainer;
@@ -56,6 +59,9 @@ public class MoLanguage
     private Localization lo_online;
     private File baseDir;
 
+    private Set<String> loadedFiles_local;
+    private Set<String> loadedFiles_online;
+
     @Mod.PreInit
     public void init(FMLPreInitializationEvent event)
     {
@@ -72,10 +78,12 @@ public class MoLanguage
             lo_extra = new Localization();
             if (config_allowDownload)
                 lo_online = new Localization();
+            baseDir = new File(event.getModConfigurationDirectory().getParentFile(), "MoLanguage");
+            if (!baseDir.exists() && !baseDir.mkdirs())
+                throw new Error();
+            loadedFiles_local = new HashSet<String>();
+            loadedFiles_online = new HashSet<String>();
         }
-        baseDir = new File(event.getModConfigurationDirectory().getParentFile(), "MoLanguage");
-        if (!baseDir.exists() && !baseDir.mkdirs())
-            throw new Error();
     }
 
     @Mod.Init
@@ -83,8 +91,48 @@ public class MoLanguage
     {
         if (config_enabled)
         {
+            MinecraftForge.EVENT_BUS.register(this);
             loadExtra();
             loadOnline();
+        }
+    }
+
+    @ForgeSubscribe
+    public void onSendMessage(ClientPlayerSendMessageEvent event)
+    {
+        if ("#molang reload".equals(event.message))
+        {
+            loadExtra();
+            loadOnline();
+            event.setCanceled(true);
+        }
+        else if ("#molang dump".equals(event.message))
+        {
+            config_dump = true;
+            dump();
+            event.setCanceled(true);
+        }
+        else if ("#molang list local".equals(event.message))
+        {
+            StringBuilder s = new StringBuilder("local language files:");
+            if (loadedFiles_local.isEmpty())
+                s.append(" none");
+            else
+                for (String f : loadedFiles_local)
+                    s.append(" " + f);
+            event.player.sendChatToPlayer(s.toString());
+            event.setCanceled(true);
+        }
+        else if ("#molang list online".equals(event.message))
+        {
+            StringBuilder s = new StringBuilder("online language files:");
+            if (loadedFiles_online.isEmpty())
+                s.append(" none");
+            else
+                for (String f : loadedFiles_online)
+                    s.append(" " + f);
+            event.player.sendChatToPlayer(s.toString());
+            event.setCanceled(true);
         }
     }
 
@@ -100,6 +148,7 @@ public class MoLanguage
 
     public void loadExtra()
     {
+        loadedFiles_local.clear();
         if (lo_extra == null)
             lo_extra = new Localization();
         File dir = new File(baseDir, "lang");
@@ -119,6 +168,7 @@ public class MoLanguage
                 else if (f.isFile())
                 {
                     String n = f.getName().toLowerCase();
+                    String p = f.getCanonicalPath();
                     if (n.endsWith(".zip") || n.endsWith(".jar"))
                     {
                         ZipInputStream zis = null;
@@ -128,7 +178,13 @@ public class MoLanguage
                             ZipEntry entry = null;
                             while ((entry = zis.getNextEntry()) != null)
                                 if (entry.getName().toLowerCase().endsWith(".lang"))
+                                {
                                     loadExtra(data, zis);
+                                    if (data == lo_extra)
+                                        loadedFiles_local.add(p + ":" + entry.getName());
+                                    else if (data == lo_online)
+                                        loadedFiles_online.add(p + ":" + entry.getName());
+                                }
                         }
                         catch (IOException e)
                         {
@@ -148,7 +204,13 @@ public class MoLanguage
                         }
                     }
                     else if (n.endsWith(".lang"))
+                    {
                         loadExtra(data, new FileInputStream(f));
+                        if (data == lo_extra)
+                            loadedFiles_local.add(p);
+                        else if (data == lo_online)
+                            loadedFiles_online.add(p);
+                    }
                 }
             }
         }
@@ -226,6 +288,7 @@ public class MoLanguage
     {
         if (config_allowDownload)
         {
+            loadedFiles_online.clear();
             if (lo_online == null)
                 lo_online = new Localization();
             final File dir = new File(baseDir, "langDownload");
@@ -250,6 +313,10 @@ public class MoLanguage
                     try
                     {
                         // TODO
+                        for (String url0 : config_urlProviders)
+                        {
+
+                        }
                     }
                     catch (Throwable t)
                     {
