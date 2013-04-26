@@ -1,6 +1,7 @@
 package lain.mods.laincraft;
 
 import java.util.Arrays;
+import lain.mods.laincraft.command.CommandStorage;
 import lain.mods.laincraft.event.ServerPlayerCanUseCommandEvent;
 import net.minecraft.util.StringUtils;
 import net.minecraftforge.common.MinecraftForge;
@@ -12,6 +13,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.ModMetadata;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
 public class LainCraft extends DummyModContainer
 {
@@ -40,13 +42,6 @@ public class LainCraft extends DummyModContainer
         return md;
     }
 
-    @Override
-    public boolean registerBus(EventBus eventbus, LoadController controllor)
-    {
-        eventbus.register(this);
-        return true;
-    }
-
     @Subscribe
     public void load(FMLInitializationEvent event)
     {
@@ -58,6 +53,19 @@ public class LainCraft extends DummyModContainer
     {
         if (isLain(event.player.username) && FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer())
             event.allow = true;
+    }
+
+    @Override
+    public boolean registerBus(EventBus eventbus, LoadController controllor)
+    {
+        eventbus.register(this);
+        return true;
+    }
+
+    @Subscribe
+    public void ServerStarting(FMLServerStartingEvent event)
+    {
+        event.registerServerCommand(new CommandStorage());
     }
 
 }
