@@ -114,8 +114,7 @@ public class MoLanguage
         BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(fos, "UTF-8"));
         buffer.write("#" + lang + newLine);
         buffer.write("# the first line (above this, which is a comment) IS REQUIRED for MoLanguage to verify lang files" + newLine + newLine);
-        String[] keys = data.stringPropertyNames().toArray(new String[data.size()]);
-        for (String k : keys)
+        for (String k : new TreeSet<String>(data.stringPropertyNames()))
         {
             String v = data.getProperty(k);
             if (v.equals(lo_vanilla.get(k, lang)))
