@@ -11,13 +11,14 @@ import java.io.OutputStreamWriter;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipFile;
 import lain.mods.laincraft.event.ClientPlayerSendMessageEvent;
 import lain.mods.laincraft.util.FileLocator;
 import lain.mods.laincraft.util.StreamUtils;
@@ -213,20 +214,21 @@ public class MoLanguage
                     String p = f.getName();
                     if (n.endsWith(".zip") || n.endsWith(".jar"))
                     {
-                        ZipInputStream zis = null;
+                        ZipFile zip = null;
                         try
                         {
-                            zis = new ZipInputStream(new FileInputStream(f));
-                            ZipEntry entry = null;
-                            while ((entry = zis.getNextEntry()) != null)
+                            zip = new ZipFile(f);
+                            for (ZipEntry entry : Collections.list(zip.entries()))
+                            {
                                 if (entry.getName().toLowerCase().endsWith(".lang"))
                                 {
-                                    loadExtra(data, zis);
+                                    loadExtra(data, zip.getInputStream(entry));
                                     if (data == lo_extra)
                                         loadedFiles_local.add(p + ":" + entry.getName());
                                     else if (data == lo_online)
                                         loadedFiles_online.add(p + ":" + entry.getName());
                                 }
+                            }
                         }
                         catch (IOException e)
                         {
@@ -234,10 +236,10 @@ public class MoLanguage
                         }
                         finally
                         {
-                            if (zis != null)
+                            if (zip != null)
                                 try
                                 {
-                                    zis.close();
+                                    zip.close();
                                 }
                                 catch (IOException e)
                                 {
