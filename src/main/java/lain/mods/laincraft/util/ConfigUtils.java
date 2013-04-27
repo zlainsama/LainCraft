@@ -75,7 +75,7 @@ public class ConfigUtils
                     }
                     else if (o instanceof String[])
                     {
-                        prop = new Property(n, "", Property.Type.STRING);
+                        prop = new Property(n, new String[0], Property.Type.STRING);
                         prop.set((String[]) o);
                     }
                     if (f.isAnnotationPresent(SingleComment.class))
@@ -166,7 +166,7 @@ public class ConfigUtils
                 }
                 else if (o instanceof String[])
                 {
-                    prop = new Property(n, "", Property.Type.STRING);
+                    prop = new Property(n, new String[0], Property.Type.STRING);
                     prop.set((String[]) o);
                 }
                 if (f.isAnnotationPresent(SingleComment.class))
