@@ -7,7 +7,9 @@ import lain.mods.laincraft.command.CommandSetHome;
 import lain.mods.laincraft.command.CommandSpawn;
 import lain.mods.laincraft.command.CommandStorage;
 import lain.mods.laincraft.event.ServerPlayerCanUseCommandEvent;
+import lain.mods.laincraft.util.ConfigUtils;
 import net.minecraft.util.StringUtils;
+import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
 import com.google.common.eventbus.EventBus;
@@ -17,10 +19,14 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.ModMetadata;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
 public class LainCraft extends DummyModContainer
 {
+
+    @ConfigUtils.SingleComment("this will add /back, /home, /sethome, /spawn, /storage")
+    public static boolean config_enableExtraCommands = true;
 
     public static boolean isLain(String username)
     {
@@ -47,6 +53,15 @@ public class LainCraft extends DummyModContainer
     }
 
     @Subscribe
+    public void init(FMLPreInitializationEvent event)
+    {
+        Configuration config = new Configuration(event.getSuggestedConfigurationFile());
+        config.load();
+        ConfigUtils.loadFromConfig(config, getClass(), "config_", Configuration.CATEGORY_GENERAL);
+        config.save();
+    }
+
+    @Subscribe
     public void load(FMLInitializationEvent event)
     {
         MinecraftForge.EVENT_BUS.register(this);
@@ -69,11 +84,14 @@ public class LainCraft extends DummyModContainer
     @Subscribe
     public void ServerStarting(FMLServerStartingEvent event)
     {
-        event.registerServerCommand(new CommandBack());
-        event.registerServerCommand(new CommandHome());
-        event.registerServerCommand(new CommandSetHome());
-        event.registerServerCommand(new CommandSpawn());
-        event.registerServerCommand(new CommandStorage());
+        if (config_enableExtraCommands)
+        {
+            event.registerServerCommand(new CommandBack());
+            event.registerServerCommand(new CommandHome());
+            event.registerServerCommand(new CommandSetHome());
+            event.registerServerCommand(new CommandSpawn());
+            event.registerServerCommand(new CommandStorage());
+        }
     }
 
 }
