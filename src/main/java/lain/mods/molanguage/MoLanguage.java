@@ -223,10 +223,13 @@ public class MoLanguage
                                 if (entry.getName().toLowerCase().endsWith(".lang"))
                                 {
                                     loadExtra(data, zip.getInputStream(entry));
+                                    String p1 = entry.getName();
+                                    if (p1.lastIndexOf("/") != -1)
+                                        p1 = p1.substring(p1.lastIndexOf("/") + 1);
                                     if (data == lo_extra)
-                                        loadedFiles_local.add(p + ":" + entry.getName());
+                                        loadedFiles_local.add(p + ":" + p1);
                                     else if (data == lo_online)
-                                        loadedFiles_online.add(p + ":" + entry.getName());
+                                        loadedFiles_online.add(p + ":" + p1);
                                 }
                             }
                         }
