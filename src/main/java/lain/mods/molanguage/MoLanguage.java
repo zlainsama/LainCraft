@@ -574,7 +574,7 @@ public class MoLanguage
         }
         else if ("#molang list local".equals(event.message))
         {
-            StringBuilder s = new StringBuilder("local language files:");
+            StringBuilder s = new StringBuilder("[L] " + loadedFiles_local.size() + " lang-packs:");
             if (loadedFiles_local.isEmpty())
                 s.append(" none");
             else
@@ -585,7 +585,7 @@ public class MoLanguage
         }
         else if ("#molang list online".equals(event.message))
         {
-            StringBuilder s = new StringBuilder("online language files:");
+            StringBuilder s = new StringBuilder("[O] " + +loadedFiles_online.size() + " lang-packs:");
             if (loadedFiles_online.isEmpty())
                 s.append(" none");
             else
