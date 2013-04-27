@@ -356,8 +356,20 @@ public class MoLanguage
                         {
                             try
                             {
+                                String url = String.format(url0, "lang.list");
                                 FileLocator.useCache = false;
-                                File list = FileLocator.getFile(String.format(url0, "lang.list"));
+                                File list = FileLocator.getFile(url);
+                                int retries = 0;
+                                while (++retries <= 3)
+                                {
+                                    if (!list.exists())
+                                    {
+                                        FileLocator.useCache = false;
+                                        list = FileLocator.getFile(url);
+                                    }
+                                    else
+                                        break;
+                                }
                                 if (list.exists())
                                     loadOnline(list, url0, dir);
                             }
