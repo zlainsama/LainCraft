@@ -17,6 +17,7 @@ public class PlayerHooks implements IClassTransformer
         public a(ClassVisitor cv)
         {
             super(262144, cv);
+            modified = false;
         }
 
         @Override
@@ -40,7 +41,10 @@ public class PlayerHooks implements IClassTransformer
             {
                 String transformedType = FMLDeobfuscatingRemapper.INSTANCE.map(owner).replace('.', '/');
                 if (maps.containsKey(transformedType))
+                {
                     owner = maps.get(transformedType);
+                    modified = true;
+                }
             }
             super.visitMethodInsn(opcode, owner, name, desc);
         }
@@ -52,11 +56,16 @@ public class PlayerHooks implements IClassTransformer
             {
                 String transformedType = FMLDeobfuscatingRemapper.INSTANCE.map(type).replace('.', '/');
                 if (maps.containsKey(transformedType))
+                {
                     type = maps.get(transformedType);
+                    modified = true;
+                }
             }
             super.visitTypeInsn(opcode, type);
         }
     }
+
+    private boolean modified;
 
     HashMap<String, String> maps = new HashMap<String, String>();
 
@@ -75,7 +84,7 @@ public class PlayerHooks implements IClassTransformer
         ClassReader classReader = new ClassReader(bytes);
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         classReader.accept(new a(classWriter), ClassReader.EXPAND_FRAMES);
-        return classWriter.toByteArray();
+        return modified ? classWriter.toByteArray() : bytes;
     }
 
 }
