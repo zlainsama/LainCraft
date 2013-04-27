@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import lain.mods.laincraft.event.ClientPlayerSendMessageEvent;
@@ -577,7 +578,7 @@ public class MoLanguage
             if (loadedFiles_local.isEmpty())
                 s.append(" none");
             else
-                for (String f : loadedFiles_local)
+                for (String f : new TreeSet<String>(loadedFiles_local))
                     s.append(" " + f);
             event.player.sendChatToPlayer(s.toString());
             event.setCanceled(true);
@@ -588,7 +589,7 @@ public class MoLanguage
             if (loadedFiles_online.isEmpty())
                 s.append(" none");
             else
-                for (String f : loadedFiles_online)
+                for (String f : new TreeSet<String>(loadedFiles_online))
                     s.append(" " + f);
             event.player.sendChatToPlayer(s.toString());
             event.setCanceled(true);

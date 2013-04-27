@@ -14,12 +14,12 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import lain.mods.laincraft.util.UnicodeInputStreamReader;
 
@@ -298,9 +298,7 @@ public class Config
                     buf.write("# " + line + newLine);
                 buf.write(newLine);
             }
-            String[] keys = keySet().toArray(new String[keySet().size()]);
-            Arrays.sort(keys);
-            for (String key : keys)
+            for (String key : new TreeSet<String>(keySet()))
             {
                 ConfigProperty prop = get(key);
                 if (prop.comment != null)
