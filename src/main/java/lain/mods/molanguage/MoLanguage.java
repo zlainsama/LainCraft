@@ -210,7 +210,7 @@ public class MoLanguage
                 else if (f.isFile())
                 {
                     String n = f.getName().toLowerCase();
-                    String p = f.getCanonicalPath();
+                    String p = f.getName();
                     if (n.endsWith(".zip") || n.endsWith(".jar"))
                     {
                         ZipInputStream zis = null;
