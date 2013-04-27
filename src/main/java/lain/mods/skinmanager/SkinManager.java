@@ -35,13 +35,13 @@ public class SkinManager implements IPacketHandler, IConnectionHandler
 {
 
     @Config.SingleComment("by setting this to true, this server will force connected LainCraft clients to use specific servers defined in this file.")
-    @Config.Property(name = "forceSkins", defaultValue = "false")
+    @Config.Property(defaultValue = "false")
     private static boolean forceSkins;
     @Config.SingleComment("official server: http://skins.minecraft.net/MinecraftSkins/%s.png" + "\n" + "old official server: http://s3.amazonaws.com/MinecraftSkins/%s.png" + "\n" + "McMySkin: http://mcmyskin.com/skins.php?name=%s.png" + "\n" + "SkinMe: http://sm.skinme.co/get.php?type=skin&file=%s.png")
-    @Config.Property(name = "SkinServer", defaultValue = "http://skins.minecraft.net/MinecraftSkins/%s.png")
+    @Config.Property(defaultValue = "http://skins.minecraft.net/MinecraftSkins/%s.png")
     private static String SkinServer;
     @Config.SingleComment("official server: http://skins.minecraft.net/MinecraftCloaks/%s.png" + "\n" + "old official server: http://s3.amazonaws.com/MinecraftCloaks/%s.png" + "\n" + "McMySkin: http://mcmyskin.com/skins.php?cape&name=%s.png" + "\n" + "SkinMe: http://sm.skinme.co/get.php?type=cloak&file=%s.png")
-    @Config.Property(name = "CloakServer", defaultValue = "http://skins.minecraft.net/MinecraftCloaks/%s.png")
+    @Config.Property(defaultValue = "http://skins.minecraft.net/MinecraftCloaks/%s.png")
     private static String CloakServer;
 
     @Mod.Metadata

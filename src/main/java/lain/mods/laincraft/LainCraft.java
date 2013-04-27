@@ -25,7 +25,7 @@ public class LainCraft extends DummyModContainer
 {
 
     @Config.SingleComment("this will add /back, /home, /sethome, /spawn, /storage")
-    @Config.Property(name = "enableExtraCommands", defaultValue = "true")
+    @Config.Property(defaultValue = "true")
     public static boolean enableExtraCommands;
 
     public static boolean isLain(String username)

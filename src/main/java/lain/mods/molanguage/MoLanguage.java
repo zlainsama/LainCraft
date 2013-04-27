@@ -41,22 +41,22 @@ public class MoLanguage
 {
 
     @Config.SingleComment("just turn it off if you want")
-    @Config.Property(name = "enabled", defaultValue = "true")
+    @Config.Property(defaultValue = "true")
     private static boolean enabled;
     @Config.SingleComment("dump all mod language data? (auto-reset after one successful dump)")
-    @Config.Property(name = "dump", defaultValue = "false")
+    @Config.Property(defaultValue = "false")
     private static boolean dump;
     @Config.SingleComment("dump the specific language?")
-    @Config.Property(name = "dumpLang", defaultValue = "")
+    @Config.Property(defaultValue = "")
     private static String dumpLang;
     @Config.SingleComment("dump data imported by this mod?")
-    @Config.Property(name = "dumpExtra", defaultValue = "false")
+    @Config.Property(defaultValue = "false")
     private static boolean dumpExtra;
     @Config.SingleComment("online lang-pack providers (split with \\n)")
-    @Config.Property(name = "urlProviders", defaultValue = "http://www.mcbbc.com/lang/zh_CN/%s")
+    @Config.Property(defaultValue = "http://www.mcbbc.com/lang/zh_CN/%s")
     private static String urlProviders;
     @Config.SingleComment("allow online lang-packs?")
-    @Config.Property(name = "allowDownload", defaultValue = "true")
+    @Config.Property(defaultValue = "true")
     private static boolean allowDownload;
 
     @Mod.Metadata

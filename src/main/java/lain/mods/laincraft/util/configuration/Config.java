@@ -32,7 +32,7 @@ public class Config
     {
         public String defaultValue() default "";
 
-        public String name();
+        public String name() default "";
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -156,6 +156,8 @@ public class Config
         {
             Property info = f.getAnnotation(Property.class);
             String key = info.name();
+            if (key.isEmpty())
+                key = f.getName();
             String defaultValue = info.defaultValue();
             Class type = f.getType();
             if (Modifier.isStatic(f.getModifiers()))
@@ -333,6 +335,8 @@ public class Config
         {
             Property info = f.getAnnotation(Property.class);
             String key = info.name();
+            if (key.isEmpty())
+                key = f.getName();
             String defaultValue = info.defaultValue();
             Class type = f.getType();
             if (Modifier.isStatic(f.getModifiers()))
