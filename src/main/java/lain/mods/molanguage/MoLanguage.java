@@ -356,7 +356,7 @@ public class MoLanguage
                         {
                             try
                             {
-                                String url = String.format(url0, "lang.list");
+                                String url = String.format(url0, "langlist");
                                 FileLocator.useCache = false;
                                 File list = FileLocator.getFile(url);
                                 int retries = 0;
