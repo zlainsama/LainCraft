@@ -113,7 +113,8 @@ public class MoLanguage
         FileOutputStream fos = new FileOutputStream(f);
         BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(fos, "UTF-8"));
         buffer.write("#" + lang + newLine);
-        buffer.write("# the first line (above this, which is a comment) IS REQUIRED for MoLanguage to verify lang files" + newLine + newLine);
+        buffer.write("# the first line (above this, which is a comment) IS REQUIRED for MoLanguage to verify lang files" + newLine);
+        buffer.write("# WARNING: this file was saved in UTF-8" + newLine + newLine);
         for (String k : new TreeSet<String>(data.stringPropertyNames()))
         {
             String v = data.getProperty(k);

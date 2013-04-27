@@ -291,7 +291,8 @@ public class Config
         try
         {
             buf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
-            buf.write("# " + signature + newLine + newLine);
+            buf.write("# " + signature + newLine);
+            buf.write("# WARNING: this file was saved in UTF-8" + newLine + newLine);
             if (comment != null)
             {
                 for (String line : lineSplitter.split(comment))
