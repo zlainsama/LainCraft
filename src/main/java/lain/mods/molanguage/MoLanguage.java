@@ -49,7 +49,7 @@ public class MoLanguage
     @ConfigUtils.SingleComment("dump data imported by this mod?")
     private static boolean config_dumpExtra = false;
     @ConfigUtils.SingleComment("online lang-pack providers")
-    private static String[] config_urlProviders = new String[0];
+    private static String[] config_urlProviders = new String[] { "http://www.mcbbc.com/lang/zh_CN/%s" };
     @ConfigUtils.SingleComment("allow online lang-packs?")
     private static boolean config_allowDownload = true;
 
