@@ -228,9 +228,9 @@ public class MoLanguage
                                     if (p1.lastIndexOf("/") != -1)
                                         p1 = p1.substring(p1.lastIndexOf("/") + 1);
                                     if (data == lo_extra)
-                                        loadedFiles_local.add(p + ":" + p1);
+                                        loadedFiles_local.add(p1 + "(" + p + ")");
                                     else if (data == lo_online)
-                                        loadedFiles_online.add(p + ":" + p1);
+                                        loadedFiles_online.add(p1 + "(" + p + ")");
                                 }
                             }
                         }
