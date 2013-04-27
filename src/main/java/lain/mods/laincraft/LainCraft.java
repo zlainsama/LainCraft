@@ -7,9 +7,8 @@ import lain.mods.laincraft.command.CommandSetHome;
 import lain.mods.laincraft.command.CommandSpawn;
 import lain.mods.laincraft.command.CommandStorage;
 import lain.mods.laincraft.event.ServerPlayerCanUseCommandEvent;
-import lain.mods.laincraft.util.ConfigUtils;
+import lain.mods.laincraft.util.configuration.Config;
 import net.minecraft.util.StringUtils;
-import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
 import com.google.common.eventbus.EventBus;
@@ -25,8 +24,9 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 public class LainCraft extends DummyModContainer
 {
 
-    @ConfigUtils.SingleComment("this will add /back, /home, /sethome, /spawn, /storage")
-    public static boolean config_enableExtraCommands = true;
+    @Config.SingleComment("this will add /back, /home, /sethome, /spawn, /storage")
+    @Config.Property(name = "enableExtraCommands", defaultValue = "true")
+    public static boolean enableExtraCommands;
 
     public static boolean isLain(String username)
     {
@@ -55,9 +55,9 @@ public class LainCraft extends DummyModContainer
     @Subscribe
     public void init(FMLPreInitializationEvent event)
     {
-        Configuration config = new Configuration(event.getSuggestedConfigurationFile());
+        Config config = new Config(event.getSuggestedConfigurationFile());
+        config.register(LainCraft.class, null);
         config.load();
-        ConfigUtils.loadFromConfig(config, getClass(), "config_", Configuration.CATEGORY_GENERAL);
         config.save();
     }
 
@@ -84,7 +84,7 @@ public class LainCraft extends DummyModContainer
     @Subscribe
     public void ServerStarting(FMLServerStartingEvent event)
     {
-        if (config_enableExtraCommands)
+        if (enableExtraCommands)
         {
             event.registerServerCommand(new CommandBack());
             event.registerServerCommand(new CommandHome());
