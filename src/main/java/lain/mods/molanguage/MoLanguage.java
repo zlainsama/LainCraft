@@ -111,7 +111,7 @@ public class MoLanguage
         FileOutputStream fos = new FileOutputStream(f);
         BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(fos, "UTF-8"));
         buffer.write("#" + lang + newLine);
-        buffer.write("# the first line (above this, which is a comment) IS REQUIRED for MoLanguage to verify lang files");
+        buffer.write("# the first line (above this, which is a comment) IS REQUIRED for MoLanguage to verify lang files" + newLine);
         String[] keys = data.stringPropertyNames().toArray(new String[data.size()]);
         for (String k : keys)
         {
