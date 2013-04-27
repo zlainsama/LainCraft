@@ -19,4 +19,11 @@ public class MinecraftUtils
             return server.getFile(server.getFolderName());
     }
 
+    public static File getCustomSaveDirectory(String name)
+    {
+        File dir = new File(new File(getActiveSaveDirectory(), "LainCraft"), name);
+        if (!dir.exists())
+            dir.mkdirs();
+        return dir;
+    }
 }

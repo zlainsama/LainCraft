@@ -5,8 +5,14 @@ import lain.mods.laincraft.player.ServerPlayer;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 
-public class CommandStorage extends CommandBase
+public class CommandBack extends CommandBase
 {
+
+    private void back(ServerPlayer par1)
+    {
+        if (par1._getLastPosition() != null)
+            par1._teleportTo(par1._getLastPosition(), false);
+    }
 
     @Override
     public boolean canCommandSenderUseCommand(ICommandSender par1)
@@ -19,14 +25,14 @@ public class CommandStorage extends CommandBase
     @Override
     public String getCommandName()
     {
-        return "storage";
+        return "back";
     }
 
     @Override
     public void processCommand(ICommandSender par1, String[] par2)
     {
         if (par1 instanceof ServerPlayer)
-            ((ServerPlayer) par1)._openPersonalStorage();
+            back((ServerPlayer) par1);
     }
 
 }

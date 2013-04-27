@@ -1,6 +1,10 @@
 package lain.mods.laincraft;
 
 import java.util.Arrays;
+import lain.mods.laincraft.command.CommandBack;
+import lain.mods.laincraft.command.CommandHome;
+import lain.mods.laincraft.command.CommandSetHome;
+import lain.mods.laincraft.command.CommandSpawn;
 import lain.mods.laincraft.command.CommandStorage;
 import lain.mods.laincraft.event.ServerPlayerCanUseCommandEvent;
 import net.minecraft.util.StringUtils;
@@ -65,6 +69,10 @@ public class LainCraft extends DummyModContainer
     @Subscribe
     public void ServerStarting(FMLServerStartingEvent event)
     {
+        event.registerServerCommand(new CommandBack());
+        event.registerServerCommand(new CommandHome());
+        event.registerServerCommand(new CommandSetHome());
+        event.registerServerCommand(new CommandSpawn());
         event.registerServerCommand(new CommandStorage());
     }
 

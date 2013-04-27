@@ -5,7 +5,7 @@ import lain.mods.laincraft.player.ServerPlayer;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 
-public class CommandStorage extends CommandBase
+public class CommandHome extends CommandBase
 {
 
     @Override
@@ -19,14 +19,20 @@ public class CommandStorage extends CommandBase
     @Override
     public String getCommandName()
     {
-        return "storage";
+        return "home";
+    }
+
+    private void home(ServerPlayer par1)
+    {
+        if (par1._getHomePosition() != null)
+            par1._teleportTo(par1._getHomePosition(), false);
     }
 
     @Override
     public void processCommand(ICommandSender par1, String[] par2)
     {
         if (par1 instanceof ServerPlayer)
-            ((ServerPlayer) par1)._openPersonalStorage();
+            home((ServerPlayer) par1);
     }
 
 }
