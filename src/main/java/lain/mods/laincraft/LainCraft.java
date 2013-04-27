@@ -1,6 +1,8 @@
 package lain.mods.laincraft;
 
 import java.util.Arrays;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import lain.mods.laincraft.command.CommandBack;
 import lain.mods.laincraft.command.CommandHome;
 import lain.mods.laincraft.command.CommandSetHome;
@@ -24,9 +26,16 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 public class LainCraft extends DummyModContainer
 {
 
+    private static final ThreadPoolExecutor executorService = (ThreadPoolExecutor) Executors.newFixedThreadPool(8);
+
     @Config.SingleComment("this will add /back, /home, /sethome, /spawn, /storage")
     @Config.Property(defaultValue = "true")
     public static boolean enableExtraCommands;
+
+    public static ThreadPoolExecutor getExecutorService()
+    {
+        return executorService;
+    }
 
     public static boolean isLain(String username)
     {

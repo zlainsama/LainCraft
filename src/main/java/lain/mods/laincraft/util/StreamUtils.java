@@ -19,7 +19,7 @@ public class StreamUtils
 
     public static byte[] readFully(InputStream stream) throws IOException
     {
-        byte[] data = new byte[4096];
+        byte[] data = new byte[65536];
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int len = -1;
         while ((len = stream.read(data)) != -1)

@@ -368,17 +368,6 @@ public class MoLanguage
                                 String url = String.format(url0, "langlist");
                                 FileLocator.useCache = false;
                                 File list = FileLocator.getFile(url);
-                                int retries = 0;
-                                while (++retries <= 3)
-                                {
-                                    if (!list.exists())
-                                    {
-                                        FileLocator.useCache = false;
-                                        list = FileLocator.getFile(url);
-                                    }
-                                    else
-                                        break;
-                                }
                                 if (list.exists())
                                     loadOnline(list, url0, dir);
                             }
@@ -424,17 +413,6 @@ public class MoLanguage
                             FileLocator.useCache = true;
                             String url = String.format(root, parts[1]);
                             File f = FileLocator.getFile(url);
-                            int retries = 0;
-                            while (++retries <= 3)
-                            {
-                                if (!f.exists() || !StreamUtils.calc_md5(StreamUtils.readFully(new FileInputStream(f))).equals(parts[3].toLowerCase()))
-                                {
-                                    FileLocator.useCache = false;
-                                    f = FileLocator.getFile(url);
-                                }
-                                else
-                                    break;
-                            }
                             if (f.exists() && StreamUtils.calc_md5(StreamUtils.readFully(new FileInputStream(f))).equals(parts[3].toLowerCase()))
                             {
                                 File f1 = new File(dir, parts[1]);
