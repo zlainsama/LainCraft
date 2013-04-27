@@ -594,6 +594,14 @@ public class MoLanguage
             event.player.sendChatToPlayer(s.toString());
             event.setCanceled(true);
         }
+        else if (event.message.startsWith("#molang ") || "#molang".equals(event.message))
+        {
+            event.player.sendChatToPlayer("#molang reload");
+            event.player.sendChatToPlayer("#molang dump");
+            event.player.sendChatToPlayer("#molang list local");
+            event.player.sendChatToPlayer("#molang list online");
+            event.setCanceled(true);
+        }
     }
 
 }
