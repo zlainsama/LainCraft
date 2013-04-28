@@ -159,7 +159,7 @@ public class MoLanguage extends Plugin
     @Subscribe
     public void init(FMLPreInitializationEvent event)
     {
-        config = new Config(event.getSuggestedConfigurationFile());
+        config = new Config(new File(event.getModConfigurationDirectory(), "MoLanguage.cfg"));
         config.register(MoLanguage.class, null);
         config.load();
         config.save();

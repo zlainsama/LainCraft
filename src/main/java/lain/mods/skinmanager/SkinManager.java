@@ -86,7 +86,7 @@ public class SkinManager extends Plugin implements IPacketHandler, IConnectionHa
     @Subscribe
     public void init(FMLPreInitializationEvent event)
     {
-        config = new Config(event.getSuggestedConfigurationFile());
+        config = new Config(new File(event.getModConfigurationDirectory(), "SkinManager.cfg"));
         config.register(SkinManager.class, null);
         config.load();
         config.save();
@@ -95,7 +95,7 @@ public class SkinManager extends Plugin implements IPacketHandler, IConnectionHa
         {
             try
             {
-                readFromZip(event.getSourceFile(), "lain/mods/laincraft/skins/");
+                readFromZip(FMLPlugin_LainCraftLoader.source, "lain/mods/laincraft/skins/");
                 File skinsDir = new File(event.getModConfigurationDirectory().getParentFile(), "skins");
                 if (!skinsDir.isDirectory())
                     skinsDir.delete();

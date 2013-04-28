@@ -1,5 +1,6 @@
 package lain.mods.laincraft;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -80,7 +81,7 @@ public class LainCraft extends DummyModContainer
     @Subscribe
     public void init(FMLPreInitializationEvent event)
     {
-        Config config = new Config(event.getSuggestedConfigurationFile());
+        Config config = new Config(new File(event.getModConfigurationDirectory(), "LainCraft.cfg"));
         config.register(LainCraft.class, null);
         config.load();
         config.save();

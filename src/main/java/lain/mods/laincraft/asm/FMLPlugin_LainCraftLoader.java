@@ -1,5 +1,6 @@
 package lain.mods.laincraft.asm;
 
+import java.io.File;
 import java.util.Map;
 import cpw.mods.fml.relauncher.IFMLCallHook;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
@@ -10,6 +11,7 @@ import cpw.mods.fml.relauncher.RelaunchClassLoader;
 public class FMLPlugin_LainCraftLoader implements IFMLLoadingPlugin, IFMLCallHook
 {
 
+    public static File source;
     public static RelaunchClassLoader classLoader;
 
     @Override
@@ -45,6 +47,8 @@ public class FMLPlugin_LainCraftLoader implements IFMLLoadingPlugin, IFMLCallHoo
     @Override
     public void injectData(Map<String, Object> data)
     {
+        if (data.containsKey("coremodLocation"))
+            source = (File) data.get("coremodLocation");
         if (data.containsKey("classLoader"))
             classLoader = (RelaunchClassLoader) data.get("classLoader");
     }
