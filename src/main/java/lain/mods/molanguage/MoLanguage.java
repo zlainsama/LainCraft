@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -53,7 +52,7 @@ public class MoLanguage extends Plugin
     @Config.Property(defaultValue = "false")
     private static boolean dumpExtra;
     @Config.SingleComment("online lang-pack providers (split with \\n)")
-    @Config.Property(defaultValue = "http://www.mcbbc.com/lang/zh_CN/%s")
+    @Config.Property(defaultValue = "http://tab.mcbbc.com/lang/%s")
     private static String urlProviders;
     @Config.SingleComment("allow online lang-packs?")
     @Config.Property(defaultValue = "true")
@@ -363,10 +362,9 @@ public class MoLanguage extends Plugin
                         {
                             try
                             {
-                                String url = String.format(url0, "langlist");
-                                FileLocator.useCache = false;
+                                String url = String.format(url0, "langlist.list");
                                 File list = FileLocator.getFile(url);
-                                if (list.exists())
+                                if (list.exists() && verifyList(list))
                                     loadOnline(list, url0, dir);
                             }
                             catch (Throwable t)
@@ -408,10 +406,9 @@ public class MoLanguage extends Plugin
                     {
                         if (modsList.contains(parts[0]) || "*".equals(parts[0]))
                         {
-                            FileLocator.useCache = true;
-                            String url = String.format(root, parts[1]);
+                            String url = String.format(root, parts[2] + "/" + parts[1]);
                             File f = FileLocator.getFile(url);
-                            if (f.exists() && StreamUtils.calc_md5(StreamUtils.readFully(new FileInputStream(f))).equals(parts[3].toLowerCase()))
+                            if (f.exists())
                             {
                                 File f1 = new File(dir, parts[1]);
                                 if (f1.getParentFile() != null && !f1.getParentFile().exists())
@@ -427,10 +424,6 @@ public class MoLanguage extends Plugin
             }
         }
         catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        catch (NoSuchAlgorithmException e)
         {
             e.printStackTrace();
         }
@@ -577,6 +570,32 @@ public class MoLanguage extends Plugin
             event.player.sendChatToPlayer("#molang list online");
             event.setCanceled(true);
         }
+    }
+
+    public boolean verifyList(File list)
+    {
+        BufferedReader buf = null;
+        try
+        {
+            buf = new BufferedReader(new UnicodeInputStreamReader(new FileInputStream(list), "UTF-8"));
+            return buf.readLine().equals("#langlist");
+        }
+        catch (Exception ignored)
+        {
+            return false;
+        }
+        finally
+        {
+            if (buf != null)
+                try
+                {
+                    buf.close();
+                }
+                catch (Exception ignored)
+                {
+                }
+        }
+
     }
 
 }

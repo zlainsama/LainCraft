@@ -5,16 +5,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class StreamUtils
 {
 
-    public static String calc_md5(byte[] bytes) throws NoSuchAlgorithmException
+    public static String compute_md5(byte[] bytes)
     {
-        MessageDigest digest = MessageDigest.getInstance("MD5");
-        digest.update(bytes);
-        return new BigInteger(1, digest.digest()).toString(16).toLowerCase();
+        try
+        {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            digest.update(bytes);
+            return String.format("%1$032x", new BigInteger(1, digest.digest()));
+        }
+        catch (Exception ignored)
+        {
+            return null;
+        }
     }
 
     public static byte[] readFully(InputStream stream) throws IOException

@@ -4,17 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.Proxy;
 import java.net.URL;
-import java.util.Collections;
-import lain.mods.laincraft.LainCraft;
-import lain.mods.laincraft.util.download.DownloadJob;
-import lain.mods.laincraft.util.download.DownloadListener;
-import lain.mods.laincraft.util.download.Downloadable;
 
 public class FileLocator
 {
 
     public static Proxy proxy = Proxy.NO_PROXY;
     public static boolean useCache = true;
+    public static int maxAttempts = 3;
 
     private static File download(String url) throws IOException
     {
@@ -23,29 +19,20 @@ public class FileLocator
             tempDir.mkdirs();
         String id = filterFilename(url);
         File file = new File(tempDir, id);
-        final boolean[] flag = new boolean[] { false };
-        DownloadJob job = new DownloadJob(url, true, new DownloadListener()
+        int max = maxAttempts;
+        Fetchable job = new Fetchable(proxy, new URL(url), file, useCache);
+        while (job.getNumAttempts() < max)
         {
-            @Override
-            public void onDownloadJobFinished(DownloadJob job)
-            {
-                flag[0] = true;
-            }
-
-            @Override
-            public void onDownloadJobProgressChanged(DownloadJob job)
-            {
-            }
-        }, Collections.singleton(new Downloadable(proxy, new URL(url), file, !useCache)));
-        job.startDownloading(LainCraft.getExecutorService());
-        while (!flag[0])
             try
             {
-                Thread.sleep(100L);
+                System.out.println(job.fetch());
+                break;
             }
-            catch (InterruptedException e)
+            catch (Throwable t)
             {
+                t.printStackTrace();
             }
+        }
         return file;
     }
 
