@@ -66,6 +66,7 @@ public class MoLanguage extends Plugin
     private Set<String> modsList;
     private Set<String> loadedFiles_local;
     private Set<String> loadedFiles_online;
+    private Thread threadDownload;
 
     public void dump()
     {
@@ -347,7 +348,7 @@ public class MoLanguage extends Plugin
                 t.printStackTrace();
                 modsList.clear();
             }
-            new Thread(new Runnable()
+            threadDownload = new Thread(new Runnable()
             {
                 @Override
                 public void run()
@@ -391,7 +392,8 @@ public class MoLanguage extends Plugin
                         importData();
                     }
                 }
-            }).run();
+            });
+            threadDownload.run();
         }
     }
 
@@ -538,7 +540,8 @@ public class MoLanguage extends Plugin
         if ("#molang reload".equals(event.message))
         {
             loadExtra();
-            loadOnline();
+            if (threadDownload == null || !threadDownload.isAlive())
+                loadOnline();
             event.setCanceled(true);
         }
         else if ("#molang dump".equals(event.message))
