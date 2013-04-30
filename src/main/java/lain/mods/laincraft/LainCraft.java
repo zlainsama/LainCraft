@@ -98,6 +98,7 @@ public class LainCraft extends DummyModContainer
 
     private void loadPlugins()
     {
+        loadPlugin("lain.mods.inputfix.InputFix");
         loadPlugin("lain.mods.molanguage.MoLanguage");
         loadPlugin("lain.mods.skinmanager.SkinManager");
     }
