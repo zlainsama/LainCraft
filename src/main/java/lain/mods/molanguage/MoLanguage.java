@@ -103,7 +103,7 @@ public class MoLanguage extends Plugin
         String prevLang = StringTranslate.getInstance().getCurrentLanguage();
         StringTranslate.getInstance().setLanguage(lang, true);
         Properties data = StringTranslate.getInstance().translateTable;
-        String newLine = System.getProperty("line.separator");
+        String newLine = Config.newLine;
         FileOutputStream fos = new FileOutputStream(f);
         BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(fos, "UTF-8"));
         buffer.write("#" + lang + newLine);
@@ -414,7 +414,7 @@ public class MoLanguage extends Plugin
                                 if (f1.getParentFile() != null && !f1.getParentFile().exists())
                                     f1.mkdirs();
                                 FileOutputStream fos = new FileOutputStream(f1);
-                                fos.write(("#" + parts[2] + System.getProperty(System.getProperty("line.separator"))).getBytes("UTF-8"));
+                                fos.write(("#" + parts[2] + Config.newLine).getBytes("UTF-8"));
                                 fos.write(StreamUtils.readFully(new FileInputStream(f)));
                                 fos.close();
                             }
