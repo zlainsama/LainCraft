@@ -21,7 +21,6 @@ import java.util.zip.ZipFile;
 import lain.mods.laincraft.Plugin;
 import lain.mods.laincraft.event.ClientPlayerSendMessageEvent;
 import lain.mods.laincraft.util.FileLocator;
-import lain.mods.laincraft.util.StreamUtils;
 import lain.mods.laincraft.util.UnicodeInputStreamReader;
 import lain.mods.laincraft.util.configuration.Config;
 import lain.mods.molanguage.util.Localization;
@@ -67,6 +66,60 @@ public class MoLanguage extends Plugin
     private Set<String> loadedFiles_local;
     private Set<String> loadedFiles_online;
     private Thread threadDownload;
+
+    public void clearDirectory(File dir)
+    {
+        for (File f : dir.listFiles())
+        {
+            if (f.isDirectory())
+            {
+                clearDirectory(f);
+                f.delete();
+            }
+            else
+            {
+                f.delete();
+            }
+        }
+    }
+
+    public void copyLangFile(File source, File target, String appendHead)
+    {
+        BufferedReader br = null;
+        BufferedWriter bw = null;
+        try
+        {
+            br = new BufferedReader(new UnicodeInputStreamReader(new FileInputStream(source), "UTF-8"));
+            bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(target), "UTF-8"));
+            if (appendHead != null)
+                bw.write(appendHead);
+            String line = null;
+            while ((line = br.readLine()) != null)
+                bw.write(line + Config.newLine);
+        }
+        catch (IOException ignored)
+        {
+        }
+        finally
+        {
+            if (br != null)
+                try
+                {
+                    br.close();
+                }
+                catch (IOException ignored)
+                {
+                }
+            if (bw != null)
+                try
+                {
+                    bw.close();
+                }
+                catch (IOException ignored)
+                {
+                }
+        }
+    }
 
     public void dump()
     {
@@ -337,6 +390,8 @@ public class MoLanguage extends Plugin
             if (lo_online == null)
                 lo_online = new Localization();
             final File dir = new File(baseDir, "langOnlineTemp");
+            if (!dir.exists() && !dir.mkdirs())
+                throw new Error("failed to create directory \'" + dir + "\'");
             modsList = new HashSet<String>();
             try
             {
@@ -366,10 +421,7 @@ public class MoLanguage extends Plugin
                                 {
                                     if (!flag)
                                     {
-                                        if (dir.exists())
-                                            dir.delete();
-                                        if (!dir.exists() && !dir.mkdirs())
-                                            throw new Error("failed to create directory \'" + dir + "\'");
+                                        clearDirectory(dir);
                                         flag = true;
                                     }
                                     loadOnline(list, url0, dir);
@@ -419,13 +471,11 @@ public class MoLanguage extends Plugin
                             File f = FileLocator.getFile(url);
                             if (f.exists())
                             {
-                                File f1 = new File(dir, parts[1]);
-                                if (f1.getParentFile() != null && !f1.getParentFile().exists())
-                                    f1.mkdirs();
-                                FileOutputStream fos = new FileOutputStream(f1);
-                                fos.write(("#" + parts[2] + Config.newLine).getBytes("UTF-8"));
-                                fos.write(StreamUtils.readFully(new FileInputStream(f)));
-                                fos.close();
+                                File f1 = new File(dir, parts[2]);
+                                if (!f1.exists() && !f1.mkdirs())
+                                    throw new Error("failed to create directory \'" + f1 + "\'");
+                                File f2 = new File(f1, parts[1]);
+                                copyLangFile(f, f2, "#" + parts[2] + Config.newLine);
                             }
                         }
                     }
