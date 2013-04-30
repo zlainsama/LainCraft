@@ -336,10 +336,6 @@ public class MoLanguage extends Plugin
             if (lo_online == null)
                 lo_online = new Localization();
             final File dir = new File(baseDir, "langOnlineTemp");
-            if (dir.exists())
-                dir.delete();
-            if (!dir.exists() && !dir.mkdirs())
-                throw new Error();
             modsList = new HashSet<String>();
             try
             {
@@ -358,6 +354,7 @@ public class MoLanguage extends Plugin
                 {
                     try
                     {
+                        boolean flag = false;
                         for (String url0 : Config.lineSplitter.split(urlProviders))
                         {
                             try
@@ -365,7 +362,17 @@ public class MoLanguage extends Plugin
                                 String url = String.format(url0, "langlist.list");
                                 File list = FileLocator.getFile(url);
                                 if (list.exists() && verifyList(list))
+                                {
+                                    if (!flag)
+                                    {
+                                        if (dir.exists())
+                                            dir.delete();
+                                        if (!dir.exists() && !dir.mkdirs())
+                                            throw new Error("failed to create directory \'" + dir + "\'");
+                                        flag = true;
+                                    }
                                     loadOnline(list, url0, dir);
+                                }
                             }
                             catch (Throwable t)
                             {
