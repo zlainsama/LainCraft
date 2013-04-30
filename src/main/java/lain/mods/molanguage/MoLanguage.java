@@ -11,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -24,18 +25,22 @@ import lain.mods.laincraft.util.FileLocator;
 import lain.mods.laincraft.util.UnicodeInputStreamReader;
 import lain.mods.laincraft.util.configuration.Config;
 import lain.mods.molanguage.util.Localization;
+import lain.mods.molanguage.util.LocalizationAdapter;
 import net.minecraft.util.StringTranslate;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
 import com.google.common.eventbus.Subscribe;
+import cpw.mods.fml.common.IScheduledTickHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
+import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.relauncher.Side;
 
-public class MoLanguage extends Plugin
+public class MoLanguage extends Plugin implements IScheduledTickHandler
 {
 
     @Config.SingleComment("just turn it off if you want")
@@ -184,6 +189,12 @@ public class MoLanguage extends Plugin
     }
 
     @Override
+    public String getLabel()
+    {
+        return "MoLanguage";
+    }
+
+    @Override
     public String getName()
     {
         return "MoLanguage";
@@ -206,7 +217,11 @@ public class MoLanguage extends Plugin
     public void importData(Map<String, String> data, String lang)
     {
         for (String k : data.keySet())
-            LanguageRegistry.instance().addStringLocalization(k, lang, data.get(k));
+        {
+            String v = data.get(k);
+            for (LocalizationAdapter adapter : LocalizationAdapter.adapters)
+                adapter.addLocalization(k, lang, v);
+        }
     }
 
     @Subscribe
@@ -235,6 +250,8 @@ public class MoLanguage extends Plugin
         if (enabled)
         {
             MinecraftForge.EVENT_BUS.register(this);
+            TickRegistry.registerScheduledTickHandler(this, Side.CLIENT);
+            TickRegistry.registerScheduledTickHandler(this, Side.SERVER);
             loadExtra();
             loadOnline();
         }
@@ -584,6 +601,12 @@ public class MoLanguage extends Plugin
         }
     }
 
+    @Override
+    public int nextTickSpacing()
+    {
+        return 10;
+    }
+
     @ForgeSubscribe
     public void onSendMessage(ClientPlayerSendMessageEvent event)
     {
@@ -592,6 +615,8 @@ public class MoLanguage extends Plugin
             loadExtra();
             if (threadDownload == null || !threadDownload.isAlive())
                 loadOnline();
+            for (LocalizationAdapter adapter : LocalizationAdapter.adapters)
+                adapter.update(true);
             event.setCanceled(true);
         }
         else if ("#molang dump".equals(event.message))
@@ -630,6 +655,25 @@ public class MoLanguage extends Plugin
             event.player.sendChatToPlayer("#molang list online");
             event.setCanceled(true);
         }
+    }
+
+    @Override
+    public void tickEnd(EnumSet<TickType> par1, Object... par2)
+    {
+    }
+
+    @Override
+    public EnumSet<TickType> ticks()
+    {
+        return EnumSet.of(TickType.CLIENT, TickType.SERVER);
+    }
+
+    @Override
+    public void tickStart(EnumSet<TickType> par1, Object... par2)
+    {
+        if (par1.contains(TickType.CLIENT) || par1.contains(TickType.SERVER))
+            for (LocalizationAdapter adapter : LocalizationAdapter.adapters)
+                adapter.update(false);
     }
 
     public boolean verifyList(File list)
