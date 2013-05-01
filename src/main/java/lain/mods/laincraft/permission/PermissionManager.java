@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import lain.mods.laincraft.LainCraft;
 import lain.mods.laincraft.util.UnicodeInputStreamReader;
 import net.minecraft.command.ICommandSender;
 
@@ -73,6 +74,8 @@ public class PermissionManager
             case FakePlayer:
             case CommandBlock:
             case Group:
+                if (LainCraft.disablePermissionManager)
+                    break;
                 File f1 = new File(baseDir, par1.getUserType().toString());
                 if (!f1.exists())
                     f1.mkdirs();

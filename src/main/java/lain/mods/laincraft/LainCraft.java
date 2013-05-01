@@ -34,6 +34,10 @@ public class LainCraft extends DummyModContainer
     @Config.Property(defaultValue = "true")
     public static boolean enableExtraCommands;
 
+    @Config.SingleComment("disable PermissionManager?")
+    @Config.Property(defaultValue = "false")
+    public static boolean disablePermissionManager;
+
     private static PermissionManager pm;
 
     public static PermissionManager getPermissionManager()
