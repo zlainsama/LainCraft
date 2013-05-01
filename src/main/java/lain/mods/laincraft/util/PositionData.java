@@ -3,6 +3,7 @@ package lain.mods.laincraft.util;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.packet.Packet28EntityVelocity;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 
@@ -85,15 +86,37 @@ public class PositionData
 
     public void teleportEntity(Entity par1, boolean checkCollision)
     {
+        teleportEntity(par1, checkCollision, false);
+    }
+
+    public void teleportEntity(Entity par1, boolean checkCollision, boolean keepVelocity)
+    {
         if (dimension != -999 && dimension != par1.dimension)
             par1.travelToDimension(dimension);
         double var1 = y;
+        double var2 = par1.motionX;
+        double var3 = par1.motionY;
+        double var4 = par1.motionZ;
         par1.setPositionAndRotation(x, var1, z, yaw, pitch);
         if (checkCollision)
             while (!par1.worldObj.getCollidingBoundingBoxes(par1, par1.boundingBox).isEmpty())
                 par1.setPosition(x, ++var1, z);
+        if (!keepVelocity)
+        {
+            par1.fallDistance = 0.0F;
+            par1.motionX = par1.motionY = par1.motionZ = 0D;
+        }
         if (par1 instanceof EntityPlayerMP)
+        {
             ((EntityPlayerMP) par1).playerNetServerHandler.setPlayerLocation(x, var1, z, yaw, pitch);
+            if (keepVelocity)
+            {
+                par1.motionX = var2;
+                par1.motionY = var3;
+                par1.motionZ = var4;
+                ((EntityPlayerMP) par1).playerNetServerHandler.sendPacketToPlayer(new Packet28EntityVelocity(par1));
+            }
+        }
     }
 
     public void writeToNBT(NBTTagCompound par1)
@@ -105,5 +128,5 @@ public class PositionData
         par1.setFloat("yaw", yaw);
         par1.setFloat("pitch", pitch);
     }
-    
+
 }
