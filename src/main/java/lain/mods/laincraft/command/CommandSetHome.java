@@ -22,7 +22,7 @@ public class CommandSetHome extends CommandBase
     public boolean canCommandSenderUseCommand(ICommandSender par1)
     {
         if (par1 instanceof ServerPlayer)
-            return LainCraft.isLain(((ServerPlayer) par1).username) || super.canCommandSenderUseCommand(par1);
+            return super.canCommandSenderUseCommand(par1);
         return false;
     }
 

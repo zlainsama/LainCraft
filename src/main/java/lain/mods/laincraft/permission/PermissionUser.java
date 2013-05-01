@@ -1,5 +1,9 @@
 package lain.mods.laincraft.permission;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import lain.mods.laincraft.LainCraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -8,13 +12,14 @@ import net.minecraft.network.rcon.RConConsoleSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntityCommandBlock;
 import net.minecraft.util.ChunkCoordinates;
+import cpw.mods.fml.common.FMLCommonHandler;
 
 public class PermissionUser implements ICommandSender
 {
 
-    enum Type
+    public enum Type
     {
-        ServerPlayer, ClientPlayer, FakePlayer, CommandBlock, ServerConsole, RemoteConsole, Others;
+        ServerPlayer, ClientPlayer, FakePlayer, CommandBlock, ServerConsole, RemoteConsole, Group, Others;
 
         public static Type getType(ICommandSender par1)
         {
@@ -32,7 +37,17 @@ public class PermissionUser implements ICommandSender
                 return ServerConsole;
             if (par1 instanceof RConConsoleSource)
                 return RemoteConsole;
+            if (par1 instanceof PermissionGroup)
+                return Group;
             return Others;
+        }
+
+        private final String name = name().toLowerCase();
+
+        @Override
+        public String toString()
+        {
+            return name;
         }
     }
 
@@ -40,6 +55,9 @@ public class PermissionUser implements ICommandSender
     private Type type;
     private ICommandSender source;
     private final PermissionManager manager;
+    private final Set<Permission> permissions;
+    private final Set<Permission> permissions_viewport;
+    private final Set<Permission> matchers;
 
     protected PermissionUser(ICommandSender par1, PermissionManager par2)
     {
@@ -47,11 +65,22 @@ public class PermissionUser implements ICommandSender
         type = Type.getType(par1);
         source = par1;
         manager = par2;
+        permissions = new HashSet<Permission>();
+        permissions_viewport = Collections.unmodifiableSet(permissions);
+        matchers = new HashSet<Permission>();
     }
 
     public boolean attachPermission(Permission par1)
     {
-        return manager.attachPermission(this, par1);
+        if (!manager.checkAttachPermission(this, par1))
+            return false;
+        if (permissions.contains(par1))
+            return false;
+        permissions.add(par1);
+        if (par1.isMatcher())
+            matchers.add(par1);
+        par1.onAttach(this);
+        return true;
     }
 
     @Override
@@ -62,7 +91,14 @@ public class PermissionUser implements ICommandSender
 
     public boolean detachPermission(Permission par1)
     {
-        return manager.detachPermission(this, par1);
+        if (!manager.checkDetachPermission(this, par1))
+            return false;
+        if (!permissions.contains(par1))
+            return false;
+        permissions.remove(par1);
+        matchers.remove(par1);
+        par1.onDetach(this);
+        return true;
     }
 
     @Override
@@ -78,21 +114,31 @@ public class PermissionUser implements ICommandSender
         return false;
     }
 
-    public ICommandSender getCommandSender()
-    {
-        return source;
-    }
-
     @Override
     public String getCommandSenderName()
     {
         return source.getCommandSenderName();
     }
 
+    public PermissionManager getManager()
+    {
+        return manager;
+    }
+
+    public Set<Permission> getPermissions()
+    {
+        return permissions_viewport;
+    }
+
     @Override
     public ChunkCoordinates getPlayerCoordinates()
     {
         return source.getPlayerCoordinates();
+    }
+
+    public ICommandSender getSource()
+    {
+        return source;
     }
 
     public String getUserName()
@@ -105,16 +151,88 @@ public class PermissionUser implements ICommandSender
         return type;
     }
 
+    public boolean hasEntity()
+    {
+        switch (type)
+        {
+            case ServerPlayer:
+            case ClientPlayer:
+            case FakePlayer:
+            case CommandBlock:
+                return true;
+            default:
+                break;
+        }
+        return false;
+    }
+
     @Override
     public int hashCode()
     {
         return name.hashCode() ^ type.hashCode() ^ source.hashCode() ^ manager.hashCode();
     }
 
+    public boolean hasPermission(Permission par1)
+    {
+        if (!permissions.contains(par1))
+        {
+            if (par1.getMatcherType() != Permission.MatcherType.ALL)
+            {
+                if (par1.isMatcher())
+                {
+                    for (Permission permission : permissions)
+                        if (par1.matches(permission))
+                            return true;
+                }
+                else
+                {
+                    for (Permission matcher : matchers)
+                        if (matcher.matches(par1))
+                            return true;
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isOperator()
+    {
+        try
+        {
+            switch (type)
+            {
+                case ServerPlayer:
+                case FakePlayer:
+                case CommandBlock:
+                    if (FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer())
+                        if (LainCraft.isLain(name))
+                            return true;
+                    return FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getOps().contains(name.toLowerCase());
+                case ServerConsole:
+                case RemoteConsole:
+                    return true;
+                default:
+                    break;
+            }
+            return false;
+        }
+        catch (NullPointerException ignored)
+        {
+            return false;
+        }
+    }
+
     @Override
     public void sendChatToPlayer(String par1)
     {
         source.sendChatToPlayer(par1);
+    }
+
+    @Override
+    public String toString()
+    {
+        return type + "." + name;
     }
 
     @Override
@@ -130,7 +248,6 @@ public class PermissionUser implements ICommandSender
             name = par1.getCommandSenderName();
             type = Type.getType(par1);
             source = par1;
-            manager.onUpdate(this);
         }
     }
 
