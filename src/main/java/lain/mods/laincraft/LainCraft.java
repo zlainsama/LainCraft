@@ -29,9 +29,9 @@ public class LainCraft extends DummyModContainer
     @Config.Property(defaultValue = "true")
     public static boolean enableExtraCommands;
 
-    @Config.SingleComment("disable PermissionManager?")
-    @Config.Property(defaultValue = "false")
-    public static boolean disablePermissionManager;
+    @Config.SingleComment("enable PermissionManager?")
+    @Config.Property(defaultValue = "true")
+    public static boolean enablePermissionManager;
 
     private static PermissionManager pm;
 
@@ -81,7 +81,7 @@ public class LainCraft extends DummyModContainer
         config.register(LainCraft.class, null);
         config.load();
         config.save();
-        if (!disablePermissionManager)
+        if (enablePermissionManager)
             pm = new PermissionManager(new File(new File(event.getModConfigurationDirectory().getParentFile(), "LainCraft"), "PermissionManager"));
     }
 
