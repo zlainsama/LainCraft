@@ -83,6 +83,7 @@ public class PermissionManager
                 BufferedReader buf = null;
                 try
                 {
+                    Set<Permission> delay = new HashSet<Permission>();
                     buf = new BufferedReader(new UnicodeInputStreamReader(new FileInputStream(f2), "UTF-8"));
                     String line = null;
                     while ((line = buf.readLine()) != null)
@@ -90,8 +91,14 @@ public class PermissionManager
                         line = line.trim();
                         if (line.isEmpty() || line.startsWith("#"))
                             continue;
-                        par1.attachPermission(PermissionFactory.build(line));
+                        Permission permission = PermissionFactory.build(line);
+                        if (permission instanceof PermissionGroup)
+                            delay.add(permission);
+                        else
+                            par1.attachPermission(permission);
                     }
+                    for (Permission permission : delay)
+                        par1.attachPermission(permission);
                 }
                 catch (FileNotFoundException ignored)
                 {
