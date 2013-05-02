@@ -23,7 +23,7 @@ public class FMLPlugin_LainCraftLoader implements IFMLLoadingPlugin, IFMLCallHoo
     @Override
     public String[] getASMTransformerClass()
     {
-        return new String[] { "lain.mods.laincraft.asm.PlayerHooks", "lain.mods.laincraft.asm.InputFix_ASMTransformer" };
+        return new String[] { "lain.mods.laincraft.asm.InputFix_ASMTransformer", "lain.mods.laincraft.asm.PlayerHooks", "lain.mods.laincraft.asm.ServerHooks" };
     }
 
     @Override

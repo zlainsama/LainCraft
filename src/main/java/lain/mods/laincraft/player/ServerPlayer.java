@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import lain.mods.laincraft.LainCraft;
-import lain.mods.laincraft.event.ServerPlayerCanUseCommandEvent;
 import lain.mods.laincraft.util.MinecraftUtils;
 import lain.mods.laincraft.util.PositionData;
 import net.minecraft.entity.EntityLiving;
@@ -288,13 +287,6 @@ public class ServerPlayer extends EntityPlayerMP
     {
         _setLastPosition(new PositionData(this));
         par1.teleportEntity(this, checkCollision);
-    }
-
-    @Override
-    public boolean canCommandSenderUseCommand(int par1, String par2Str)
-    {
-        boolean result = super.canCommandSenderUseCommand(par1, par2Str);
-        return ServerPlayerCanUseCommandEvent.post(this, result, par1, par2Str).allow;
     }
 
     @Override

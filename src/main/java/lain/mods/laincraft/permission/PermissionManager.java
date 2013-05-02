@@ -8,9 +8,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import lain.mods.laincraft.LainCraft;
+import lain.mods.laincraft.event.ServerCheckCommandAccessEvent;
 import lain.mods.laincraft.util.UnicodeInputStreamReader;
 import net.minecraft.command.ICommandSender;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.Event.Result;
+import net.minecraftforge.event.ForgeSubscribe;
 
 public class PermissionManager
 {
@@ -24,6 +27,7 @@ public class PermissionManager
         baseDir = par1;
         if (!par1.exists())
             par1.mkdirs();
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     public boolean checkAttachPermission(PermissionUser par1, Permission par2)
@@ -74,8 +78,6 @@ public class PermissionManager
             case FakePlayer:
             case CommandBlock:
             case Group:
-                if (LainCraft.disablePermissionManager)
-                    break;
                 File f1 = new File(baseDir, par1.getUserType().toString());
                 if (!f1.exists())
                     f1.mkdirs();
@@ -124,6 +126,15 @@ public class PermissionManager
         }
         if (par1.isOperator())
             par1.attachPermission(PermissionFactory.ALLPERMISSION);
+    }
+
+    @ForgeSubscribe
+    public void onCheckCommandAccess(ServerCheckCommandAccessEvent event)
+    {
+        if (getUser(event.sender).hasPermission(PermissionFactory.build("command." + event.command.getCommandName())))
+            event.setResult(Result.ALLOW);
+        else
+            event.setResult(Result.DENY);
     }
 
     public void reloadUser(PermissionUser par1)

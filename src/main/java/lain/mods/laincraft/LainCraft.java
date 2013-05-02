@@ -10,20 +10,15 @@ import lain.mods.laincraft.command.CommandHome;
 import lain.mods.laincraft.command.CommandSetHome;
 import lain.mods.laincraft.command.CommandSpawn;
 import lain.mods.laincraft.command.CommandStorage;
-import lain.mods.laincraft.event.ServerPlayerCanUseCommandEvent;
-import lain.mods.laincraft.permission.PermissionFactory;
 import lain.mods.laincraft.permission.PermissionManager;
 import lain.mods.laincraft.util.configuration.Config;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StringUtils;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ForgeSubscribe;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.ModMetadata;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
@@ -86,13 +81,8 @@ public class LainCraft extends DummyModContainer
         config.register(LainCraft.class, null);
         config.load();
         config.save();
-        pm = new PermissionManager(new File(new File(event.getModConfigurationDirectory().getParentFile(), "LainCraft"), "PermissionManager"));
-    }
-
-    @Subscribe
-    public void load(FMLInitializationEvent event)
-    {
-        MinecraftForge.EVENT_BUS.register(this);
+        if (!disablePermissionManager)
+            pm = new PermissionManager(new File(new File(event.getModConfigurationDirectory().getParentFile(), "LainCraft"), "PermissionManager"));
     }
 
     private void loadPlugin(String classname)
@@ -114,12 +104,6 @@ public class LainCraft extends DummyModContainer
         loadPlugin("lain.mods.inputfix.InputFix");
         loadPlugin("lain.mods.molanguage.MoLanguage");
         loadPlugin("lain.mods.skinmanager.SkinManager");
-    }
-
-    @ForgeSubscribe
-    public void onCheckCommandAccess(ServerPlayerCanUseCommandEvent event)
-    {
-        event.allow = pm.getUser(event.player).hasPermission(PermissionFactory.build("command." + event.commandName)) || event.allow;
     }
 
     @Override
