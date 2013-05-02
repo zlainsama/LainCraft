@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -86,6 +87,54 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
                 f.delete();
             }
         }
+    }
+
+    public void cmd_dump()
+    {
+        dump = true;
+        dump();
+    }
+
+    public void cmd_list()
+    {
+        try
+        {
+            String newLine = "\r\n";
+            StringBuilder text = new StringBuilder();
+            text.append("Local: total " + loadedFiles_local.size() + " entries" + newLine);
+            if (loadedFiles_local.isEmpty())
+                text.append("-  none" + newLine);
+            else
+                for (String f : new TreeSet<String>(loadedFiles_local))
+                    text.append("-  " + f + newLine);
+            text.append("Online: total " + loadedFiles_online.size() + " entries" + newLine);
+            if (loadedFiles_online.isEmpty())
+                text.append("-  none" + newLine);
+            else
+                for (String f : new TreeSet<String>(loadedFiles_online))
+                    text.append("-  " + f + newLine);
+            Class classGuiApiHelper = Class.forName("sharose.mods.guiapi.GuiApiHelper");
+            Method methodMakeTextDisplayAndGoBack = classGuiApiHelper.getDeclaredMethod("makeTextDisplayAndGoBack", String.class, String.class, String.class, Boolean.class);
+            Object objectTextDisplay = methodMakeTextDisplayAndGoBack.invoke(null, "Current loaded lang-packs", text.toString(), "Back", false);
+            Class classWidget = Class.forName("de.matthiasmann.twl.Widget");
+            Class classGuiModScreen = Class.forName("sharose.mods.guiapi.GuiModScreen");
+            Method methodShow = classGuiModScreen.getDeclaredMethod("show", classWidget);
+            methodShow.invoke(null, objectTextDisplay);
+        }
+        catch (Throwable t)
+        {
+            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+        }
+
+    }
+
+    public void cmd_reload()
+    {
+        loadExtra();
+        if (threadDownload == null || !threadDownload.isAlive())
+            loadOnline();
+        for (LocalizationAdapter adapter : LocalizationAdapter.adapters)
+            adapter.update(true);
     }
 
     public void copyLangFile(File source, File target, String appendHead)
@@ -191,7 +240,7 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
     @Override
     public String getLabel()
     {
-        return "MoLanguage";
+        return getName();
     }
 
     @Override
@@ -244,16 +293,44 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
         }
     }
 
+    public boolean initGuiAPI()
+    {
+        try
+        {
+            Class classModSettingScreen = Class.forName("sharose.mods.guiapi.ModSettingScreen");
+            Object objectModSettingScreen = classModSettingScreen.getDeclaredConstructor(String.class).newInstance(getName());
+            Method methodSetSingleColumn = classModSettingScreen.getDeclaredMethod("setSingleColumn", Boolean.class);
+            methodSetSingleColumn.invoke(objectModSettingScreen, true);
+            Class classGuiApiHelper = Class.forName("sharose.mods.guiapi.GuiApiHelper");
+            Method methodMakeButton = classGuiApiHelper.getDeclaredMethod("makeButton", String.class, String.class, Object.class, Boolean.class);
+            Object objectButton_Reload = methodMakeButton.invoke(null, "Reload lang-packs", "cmd_reload", this, true);
+            Object objectButton_Dump = methodMakeButton.invoke(null, "Dump lang-packs", "cmd_dump", this, true);
+            Object objectButton_List = methodMakeButton.invoke(null, "List loaded lang-packs", "cmd_list", this, true);
+            Class classWidget = Class.forName("de.matthiasmann.twl.Widget");
+            Method methodAppend = classModSettingScreen.getDeclaredMethod("append", classWidget);
+            methodAppend.invoke(objectModSettingScreen, objectButton_Reload);
+            methodAppend.invoke(objectModSettingScreen, objectButton_Dump);
+            methodAppend.invoke(objectModSettingScreen, objectButton_List);
+            return true;
+        }
+        catch (Throwable t)
+        {
+            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+        }
+        return false;
+    }
+
     @Subscribe
     public void load(FMLInitializationEvent event)
     {
         if (enabled)
         {
-            MinecraftForge.EVENT_BUS.register(this);
             TickRegistry.registerScheduledTickHandler(this, Side.CLIENT);
             TickRegistry.registerScheduledTickHandler(this, Side.SERVER);
             loadExtra();
             loadOnline();
+            if (!initGuiAPI())
+                MinecraftForge.EVENT_BUS.register(this);
         }
     }
 
@@ -372,8 +449,6 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
                     continue;
                 String k = line.substring(0, line.indexOf("=")).trim();
                 String v = line.substring(line.indexOf("=") + 1).trim();
-                if (data.get(k, lang) != null)
-                    System.err.println(String.format("warning: line %d: found duplicate key \'%s\'", num, k));
                 if (head != null)
                     v = head + v;
                 if (tail != null)
@@ -462,7 +537,7 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
                     }
                 }
             });
-            threadDownload.run();
+            threadDownload.start();
         }
     }
 
@@ -612,17 +687,12 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
     {
         if ("#molang reload".equals(event.message))
         {
-            loadExtra();
-            if (threadDownload == null || !threadDownload.isAlive())
-                loadOnline();
-            for (LocalizationAdapter adapter : LocalizationAdapter.adapters)
-                adapter.update(true);
+            cmd_reload();
             event.setCanceled(true);
         }
         else if ("#molang dump".equals(event.message))
         {
-            dump = true;
-            dump();
+            cmd_dump();
             event.setCanceled(true);
         }
         else if ("#molang list local".equals(event.message))
@@ -699,7 +769,6 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
                 {
                 }
         }
-
     }
 
 }
