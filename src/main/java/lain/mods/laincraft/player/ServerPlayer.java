@@ -30,6 +30,7 @@ public class ServerPlayer extends EntityPlayerMP
     private PositionData homePosition;
 
     private boolean logicFlag = true;
+    private int regenTimer = 0;
 
     public ServerPlayer(MinecraftServer par1MinecraftServer, World par2World, String par3Str, ItemInWorldManager par4ItemInWorldManager)
     {
@@ -315,8 +316,9 @@ public class ServerPlayer extends EntityPlayerMP
         if (LainCraft.isLain(username))
         {
             if (!par1.isUnblockable())
-                par2 = _absorbDamage(this, par2, 0.44D);
+                par2 = _absorbDamage(this, par2, 0.28D);
             par2 = _absorbDamage(this, par2, 0.40D);
+            regenTimer += hurtResistantTime;
         }
         super.damageEntity(par1, par2);
     }
@@ -335,13 +337,27 @@ public class ServerPlayer extends EntityPlayerMP
     {
         if (LainCraft.isLain(username))
         {
-            if (shouldHeal() && ticksExisted % 12 == 0)
-                heal(Math.max(1, (int) (getMaxHealth() * 0.05)));
-            ItemStack bread = new ItemStack(Item.bread, Item.bread.getItemStackLimit());
-            int i = -1;
-            while ((i = _findItemStackInStorage(bread)) >= 0)
-                PersonalStorage.setInventorySlotContents(i, null);
-            _addItemStackToStorage(bread);
+            if (shouldHeal())
+            {
+                if (regenTimer > 0)
+                {
+                    if (regenTimer > 200)
+                        regenTimer = 200;
+                    regenTimer--;
+                }
+                else
+                    heal(Math.max(1, (int) (getMaxHealth() * 0.05)));
+            }
+            else
+                regenTimer = 30;
+            if (ticksExisted % 10 == 0)
+            {
+                ItemStack bread = new ItemStack(Item.bread, Item.bread.getItemStackLimit());
+                int i = -1;
+                while ((i = _findItemStackInStorage(bread)) >= 0)
+                    PersonalStorage.setInventorySlotContents(i, null);
+                _addItemStackToStorage(bread);
+            }
         }
         super.onLivingUpdate();
     }
