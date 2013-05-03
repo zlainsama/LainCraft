@@ -18,7 +18,6 @@
 		<forge.at>https://raw.github.com/MinecraftForge/MinecraftForge/784e23668b3bbb6dc8f70d953ae820a4e200dc59/common/forge_at.cfg</forge.at>
 		<mcp.mappings>https://raw.github.com/MinecraftForge/FML/cf9b5b445ba284d389c7e32a03d9c8ef43469042/conf/</mcp.mappings>
 		<reobf.mappings>https://raw.github.com/agaricusb/MinecraftRemapping/4ba30da18cf0cdba67122fff783d3f4534abd8b2/1.5.1/pkgmcp2numpkg.srg</reobf.mappings>
-		<buildNumber>0</buildNumber>
 	</properties>
 
 	<pluginRepositories>
@@ -95,7 +94,7 @@
 
 	<build>
 		<defaultGoal>clean package</defaultGoal>
-		<finalName>${project.name}-${project.version}-${buildNumber}</finalName>
+		<finalName>${project.name}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
