@@ -23,10 +23,12 @@ import java.util.zip.ZipFile;
 import lain.mods.laincraft.Plugin;
 import lain.mods.laincraft.event.ClientPlayerSendMessageEvent;
 import lain.mods.laincraft.util.FileLocator;
+import lain.mods.laincraft.util.StreamUtils;
 import lain.mods.laincraft.util.UnicodeInputStreamReader;
 import lain.mods.laincraft.util.configuration.Config;
 import lain.mods.molanguage.util.Localization;
 import lain.mods.molanguage.util.LocalizationAdapter;
+import lain.mods.molanguage.util.LocalizationFile;
 import net.minecraft.util.StringTranslate;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
@@ -135,44 +137,6 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
             loadOnline();
         for (LocalizationAdapter adapter : LocalizationAdapter.adapters)
             adapter.update(true);
-    }
-
-    public void copyLangFile(File source, File target, String appendHead)
-    {
-        BufferedReader br = null;
-        BufferedWriter bw = null;
-        try
-        {
-            br = new BufferedReader(new UnicodeInputStreamReader(new FileInputStream(source), "UTF-8"));
-            bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(target), "UTF-8"));
-            if (appendHead != null)
-                bw.write(appendHead);
-            String line = null;
-            while ((line = br.readLine()) != null)
-                bw.write(line + Config.newLine);
-        }
-        catch (IOException ignored)
-        {
-        }
-        finally
-        {
-            if (br != null)
-                try
-                {
-                    br.close();
-                }
-                catch (IOException ignored)
-                {
-                }
-            if (bw != null)
-                try
-                {
-                    bw.close();
-                }
-                catch (IOException ignored)
-                {
-                }
-        }
     }
 
     public void dump()
@@ -356,7 +320,6 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
                 else if (f.isFile())
                 {
                     String n = f.getName().toLowerCase();
-                    String p = f.getName();
                     if (n.endsWith(".zip") || n.endsWith(".jar"))
                     {
                         ZipFile zip = null;
@@ -367,14 +330,16 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
                             {
                                 if (entry.getName().toLowerCase().endsWith(".lang"))
                                 {
-                                    loadExtra(data, zip.getInputStream(entry));
-                                    String p1 = entry.getName();
-                                    if (p1.lastIndexOf("/") != -1)
-                                        p1 = p1.substring(p1.lastIndexOf("/") + 1);
-                                    if (data == lo_extra)
-                                        loadedFiles_local.add(p1 + "(" + p + ")");
-                                    else if (data == lo_online)
-                                        loadedFiles_online.add(p1 + "(" + p + ")");
+                                    if (loadExtra(data, zip.getInputStream(entry), null))
+                                    {
+                                        String p1 = entry.getName();
+                                        if (p1.lastIndexOf("/") != -1)
+                                            p1 = p1.substring(p1.lastIndexOf("/") + 1);
+                                        if (data == lo_extra)
+                                            loadedFiles_local.add(p1 + "(" + f.getName() + ")");
+                                        else if (data == lo_online)
+                                            loadedFiles_online.add(p1 + "(" + f.getName() + ")");
+                                    }
                                 }
                             }
                         }
@@ -397,11 +362,13 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
                     }
                     else if (n.endsWith(".lang"))
                     {
-                        loadExtra(data, new FileInputStream(f));
-                        if (data == lo_extra)
-                            loadedFiles_local.add(p);
-                        else if (data == lo_online)
-                            loadedFiles_online.add(p);
+                        if (loadExtra(data, new FileInputStream(f), null))
+                        {
+                            if (data == lo_extra)
+                                loadedFiles_local.add(f.getName());
+                            else if (data == lo_online)
+                                loadedFiles_online.add(f.getName());
+                        }
                     }
                 }
             }
@@ -412,66 +379,12 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
         }
     }
 
-    public void loadExtra(Localization data, InputStream input)
+    public boolean loadExtra(Localization data, InputStream input, Properties env)
     {
-        BufferedReader buf = null;
-        try
-        {
-            UnicodeInputStreamReader is = new UnicodeInputStreamReader(input, "UTF-8");
-            buf = new BufferedReader(is);
-            String lang = null;
-            int num = 0;
-            String line = null;
-            String head = null, tail = null;
-            while ((line = buf.readLine()) != null)
-            {
-                num++;
-                line = line.trim();
-                if (lang == null && line.startsWith("#"))
-                {
-                    lang = line.indexOf(" ") != -1 ? line.substring(1, line.indexOf(" ")) : line.substring(1);
-                }
-                else if (lang == null)
-                {
-                    break;
-                }
-                if (line.equals("#headclear"))
-                    head = null;
-                else if (line.equals("#tailclear"))
-                    tail = null;
-                else if (line.startsWith("#head="))
-                    head = line.substring(6);
-                else if (line.startsWith("#tail="))
-                    tail = line.substring(6);
-                else if (line.startsWith("#author="))
-                    System.out.println(String.format("note: \'%s\' has contributed to this file", line.substring(8)));
-                if (line.startsWith("#") || line.isEmpty() || line.indexOf("=") == -1)
-                    continue;
-                String k = line.substring(0, line.indexOf("=")).trim();
-                String v = line.substring(line.indexOf("=") + 1).trim();
-                if (head != null)
-                    v = head + v;
-                if (tail != null)
-                    v = v + tail;
-                data.put(k, v, lang);
-            }
-        }
-        catch (Throwable t)
-        {
-            t.printStackTrace();
-        }
-        finally
-        {
-            if (buf != null)
-                try
-                {
-                    buf.close();
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-        }
+        LocalizationFile tmp = new LocalizationFile();
+        if (env != null)
+            tmp.env = env;
+        return tmp.load(input, data);
     }
 
     public void loadOnline()
@@ -516,7 +429,7 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
                                         clearDirectory(dir);
                                         flag = true;
                                     }
-                                    loadOnline(list, url0, dir);
+                                    loadOnline(lo_online, list, url0, dir);
                                 }
                             }
                             catch (Throwable t)
@@ -532,7 +445,6 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
                     finally
                     {
                         modsList = null; // detach from JVM
-                        loadExtra(lo_online, dir);
                         importData();
                     }
                 }
@@ -541,7 +453,7 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
         }
     }
 
-    public void loadOnline(File list, String root, File dir)
+    public void loadOnline(Localization data, File list, String root, File dir)
     {
         BufferedReader buf = null;
         try
@@ -567,7 +479,18 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
                                 if (!f1.exists() && !f1.mkdirs())
                                     throw new Error("failed to create directory \'" + f1 + "\'");
                                 File f2 = new File(f1, parts[1]);
-                                copyLangFile(f, f2, "#" + parts[2] + Config.newLine);
+                                StreamUtils.saveAsFile(new FileInputStream(f), f2);
+                                Properties tmp = new Properties();
+                                tmp.setProperty("lang", parts[2]);
+                                if (!"*".equals(parts[0]))
+                                    tmp.setProperty("mod", parts[0]);
+                                if (loadExtra(data, new FileInputStream(f), tmp))
+                                {
+                                    if (data == lo_extra)
+                                        loadedFiles_local.add(f2.getName());
+                                    else if (data == lo_online)
+                                        loadedFiles_online.add(f2.getName());
+                                }
                             }
                         }
                     }

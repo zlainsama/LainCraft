@@ -23,7 +23,7 @@ public abstract class LocalizationAdapter
             }
 
             @Override
-            public boolean Setup() throws Throwable
+            public boolean setup() throws Throwable
             {
                 return true;
             }
@@ -48,7 +48,7 @@ public abstract class LocalizationAdapter
             }
 
             @Override
-            public boolean Setup() throws Throwable
+            public boolean setup() throws Throwable
             {
                 Class cls = Class.forName("cofh.util.Localization");
                 loadedLanguage = cls.getDeclaredField("loadedLanguage");
@@ -97,7 +97,7 @@ public abstract class LocalizationAdapter
             }
 
             @Override
-            public boolean Setup() throws Throwable
+            public boolean setup() throws Throwable
             {
                 Class cls = Class.forName("forestry.core.utils.Localization");
                 loadedLanguage = cls.getDeclaredField("loadedLanguage");
@@ -139,7 +139,7 @@ public abstract class LocalizationAdapter
     {
         try
         {
-            if (Setup())
+            if (setup())
                 adapters.add(this);
         }
         catch (Throwable t)
@@ -150,7 +150,7 @@ public abstract class LocalizationAdapter
 
     public abstract void addLocalization(String key, String lang, String value);
 
-    public abstract boolean Setup() throws Throwable;
+    public abstract boolean setup() throws Throwable;
 
     public abstract void update(boolean force);
 
