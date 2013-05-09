@@ -11,11 +11,11 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<minecraft.version>1.5.2</minecraft.version>
 		<minecraft_version>1_5_2</minecraft_version>
-		<forge.build>688</forge.build>
+		<forge.build>691</forge.build>
 		<forge.version>7.8.0.${forge.build}</forge.version>
 		<forge.remapped.revision>R1-LC</forge.remapped.revision>
 		<fml.at>https://raw.github.com/MinecraftForge/FML/49111e9c5cffab49ec35f965801c3f0496f6def6/common/fml_at.cfg</fml.at>
-		<forge.at>https://raw.github.com/MinecraftForge/MinecraftForge/0444cc063cc161da3e107cacef0a76e102bbeb29/common/forge_at.cfg</forge.at>
+		<forge.at>https://raw.github.com/MinecraftForge/MinecraftForge/e805d53089522d6af988dfb7a98b1ab5f4341951/common/forge_at.cfg</forge.at>
 		<mcp.mappings>https://raw.github.com/MinecraftForge/FML/49111e9c5cffab49ec35f965801c3f0496f6def6/conf/</mcp.mappings>
 		<reobf.mappings>https://raw.github.com/agaricusb/MinecraftRemapping/e17737938c9a904c268cc0abaa3929a7eb1c4316/1.5.2/pkgmcp2numpkg.srg</reobf.mappings>
 	</properties>
