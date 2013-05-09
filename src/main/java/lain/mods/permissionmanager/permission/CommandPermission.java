@@ -1,4 +1,4 @@
-package lain.mods.laincraft.permission;
+package lain.mods.permissionmanager.permission;
 
 public class CommandPermission extends PermissionBase
 {

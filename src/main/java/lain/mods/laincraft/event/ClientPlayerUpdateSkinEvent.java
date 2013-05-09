@@ -6,12 +6,12 @@ import net.minecraftforge.event.Cancelable;
 import net.minecraftforge.event.Event;
 
 @Cancelable
-public class ClientPlayerUpdateSkinsEvent extends Event
+public class ClientPlayerUpdateSkinEvent extends Event
 {
 
-    public static ClientPlayerUpdateSkinsEvent post(EntityPlayer player, String texture, String skinUrl, String cloakUrl)
+    public static ClientPlayerUpdateSkinEvent post(EntityPlayer player, String texture, String skinUrl, String cloakUrl)
     {
-        ClientPlayerUpdateSkinsEvent event = new ClientPlayerUpdateSkinsEvent(player, texture, skinUrl, cloakUrl);
+        ClientPlayerUpdateSkinEvent event = new ClientPlayerUpdateSkinEvent(player, texture, skinUrl, cloakUrl);
         MinecraftForge.EVENT_BUS.post(event);
         return event;
     }
@@ -22,7 +22,7 @@ public class ClientPlayerUpdateSkinsEvent extends Event
 
     public String cloakUrl;
 
-    public ClientPlayerUpdateSkinsEvent(EntityPlayer player, String texture, String skinUrl, String cloakUrl)
+    public ClientPlayerUpdateSkinEvent(EntityPlayer player, String texture, String skinUrl, String cloakUrl)
     {
         super();
         this.player = player;

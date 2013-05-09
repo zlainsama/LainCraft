@@ -1,4 +1,4 @@
-package lain.mods.laincraft.util;
+package lain.mods.laincraft.util.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +8,7 @@ import java.io.Reader;
 
 public class UnicodeInputStreamReader extends Reader
 {
-    
+
     private final InputStreamReader input;
     private final String defaultEnc;
 
@@ -76,5 +76,5 @@ public class UnicodeInputStreamReader extends Reader
     {
         return input.read(cbuf, off, len);
     }
-    
+
 }

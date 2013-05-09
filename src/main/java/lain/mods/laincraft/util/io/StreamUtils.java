@@ -1,4 +1,4 @@
-package lain.mods.laincraft.util;
+package lain.mods.laincraft.util.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

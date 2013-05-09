@@ -1,12 +1,14 @@
 package lain.mods.inputfix;
 
-import java.io.File;
 import lain.mods.laincraft.Plugin;
-import com.google.common.eventbus.Subscribe;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import lain.mods.laincraft.util.configuration.Config;
+import net.minecraft.client.gui.GuiScreenFix;
 
 public class InputFix extends Plugin
 {
+
+    @Config.Property(defaultValue = "GBK")
+    public static String encoding;
 
     @Override
     public String getName()
@@ -14,10 +16,19 @@ public class InputFix extends Plugin
         return "InputFix";
     }
 
-    @Subscribe
-    public void init(FMLPreInitializationEvent event)
+    @Override
+    public void onDisable()
     {
-        InputFix_Config.setup(new File(event.getModConfigurationDirectory(), "InputFix.cfg"));
+    }
+
+    @Override
+    public void onEnable()
+    {
+        Config config = getConfig();
+        config.register(InputFix.class, null);
+        config.load();
+        config.save();
+        GuiScreenFix.encoding = encoding;
     }
 
 }

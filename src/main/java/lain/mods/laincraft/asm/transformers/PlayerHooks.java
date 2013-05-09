@@ -1,6 +1,6 @@
-package lain.mods.laincraft.asm;
+package lain.mods.laincraft.asm.transformers;
 
-public class PlayerHooks extends InstanceHookBase
+public class PlayerHooks extends InstanceHook
 {
 
     public PlayerHooks()

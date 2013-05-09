@@ -1,4 +1,4 @@
-package lain.mods.laincraft.permission;
+package lain.mods.permissionmanager.permission;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import lain.mods.laincraft.event.ServerCheckCommandAccessEvent;
-import lain.mods.laincraft.util.UnicodeInputStreamReader;
+import lain.mods.laincraft.util.io.UnicodeInputStreamReader;
 import net.minecraft.command.ICommandSender;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.Event.Result;

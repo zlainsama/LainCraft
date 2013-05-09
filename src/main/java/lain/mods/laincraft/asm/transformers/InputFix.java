@@ -1,4 +1,4 @@
-package lain.mods.laincraft.asm;
+package lain.mods.laincraft.asm.transformers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,7 +10,7 @@ import org.objectweb.asm.Opcodes;
 import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import cpw.mods.fml.relauncher.IClassTransformer;
 
-public class InputFix_ASMTransformer implements IClassTransformer
+public class InputFix implements IClassTransformer
 {
 
     class a extends ClassVisitor
@@ -36,7 +36,7 @@ public class InputFix_ASMTransformer implements IClassTransformer
                 MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
                 mv.visitCode();
                 mv.visitVarInsn(Opcodes.ALOAD, 0);
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "net/minecraft/client/gui/InputFix_GuiScreenFix", "handleKeyboardInput", "(Lnet/minecraft/client/gui/GuiScreen;)V");
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "net/minecraft/client/gui/GuiScreenFix", "handleKeyboardInput", "(Lnet/minecraft/client/gui/GuiScreen;)V");
                 mv.visitInsn(Opcodes.RETURN);
                 mv.visitMaxs(1, 1);
                 mv.visitEnd();
@@ -83,7 +83,7 @@ public class InputFix_ASMTransformer implements IClassTransformer
         {
             if (cl.equals(FMLDeobfuscatingRemapper.INSTANCE.map(owner)) && names.contains(FMLDeobfuscatingRemapper.INSTANCE.mapFieldName(owner, name, desc)))
             {
-                owner = "lain/mods/inputfix/InputFix_ExpandedCharacters";
+                owner = "lain/mods/inputfix/ExpandedCharacters";
                 name = "characters";
             }
             super.visitFieldInsn(opcode, owner, name, desc);

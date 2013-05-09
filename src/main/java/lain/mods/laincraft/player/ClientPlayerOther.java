@@ -1,6 +1,6 @@
 package lain.mods.laincraft.player;
 
-import lain.mods.laincraft.event.ClientPlayerUpdateSkinsEvent;
+import lain.mods.laincraft.event.ClientPlayerUpdateSkinEvent;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.util.StringUtils;
 import net.minecraft.world.World;
@@ -26,7 +26,7 @@ public class ClientPlayerOther extends EntityOtherPlayerMP
     {
         skinUrl = "http://skins.minecraft.net/MinecraftSkins/" + StringUtils.stripControlCodes(username) + ".png";
         cloak = "http://skins.minecraft.net/MinecraftCloaks/" + StringUtils.stripControlCodes(username) + ".png";
-        ClientPlayerUpdateSkinsEvent event = ClientPlayerUpdateSkinsEvent.post(this, texture, skinUrl, cloak);
+        ClientPlayerUpdateSkinEvent event = ClientPlayerUpdateSkinEvent.post(this, texture, skinUrl, cloak);
         if (!event.isCanceled())
         {
             if (event.texture != null)

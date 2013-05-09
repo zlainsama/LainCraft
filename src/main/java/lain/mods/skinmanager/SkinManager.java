@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import lain.mods.laincraft.Plugin;
-import lain.mods.laincraft.asm.FMLPlugin_LainCraftLoader;
-import lain.mods.laincraft.event.ClientPlayerUpdateSkinsEvent;
+import lain.mods.laincraft.asm.SharedConstants;
+import lain.mods.laincraft.event.ClientPlayerUpdateSkinEvent;
 import lain.mods.laincraft.util.configuration.Config;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.INetworkManager;
@@ -86,16 +86,12 @@ public class SkinManager extends Plugin implements IPacketHandler, IConnectionHa
     @Subscribe
     public void init(FMLPreInitializationEvent event)
     {
-        config = new Config(new File(event.getModConfigurationDirectory(), "SkinManager.cfg"));
-        config.register(SkinManager.class, null);
-        config.load();
-        config.save();
         side = event.getSide();
         if (side.isClient())
         {
             try
             {
-                readFromZip(FMLPlugin_LainCraftLoader.source, "lain/mods/laincraft/skins/");
+                readFromZip(SharedConstants.getCoreJarFile(), "lain/mods/laincraft/skins/");
                 File skinsDir = new File(event.getModConfigurationDirectory().getParentFile(), "skins");
                 if (!skinsDir.isDirectory())
                     skinsDir.delete();
@@ -105,7 +101,7 @@ public class SkinManager extends Plugin implements IPacketHandler, IConnectionHa
                     for (File f : skinsDir.listFiles())
                         if (f.getName().toLowerCase().endsWith(".zip"))
                             if (f.isFile() && readFromZip(f, null))
-                                FMLPlugin_LainCraftLoader.classLoader.addURL(f.toURI().toURL());
+                                SharedConstants.getActualClassLoader().addURL(f.toURI().toURL());
                 System.out.println("LainCraft: loaded " + textures.size() + " offline skins");
             }
             catch (Throwable t)
@@ -124,6 +120,20 @@ public class SkinManager extends Plugin implements IPacketHandler, IConnectionHa
             MinecraftForge.EVENT_BUS.register(this);
             NetworkRegistry.instance().registerConnectionHandler(this);
         }
+    }
+
+    @Override
+    public void onDisable()
+    {
+    }
+
+    @Override
+    public void onEnable()
+    {
+        config = getConfig();
+        config.register(SkinManager.class, null);
+        config.load();
+        config.save();
     }
 
     @Override
@@ -153,7 +163,7 @@ public class SkinManager extends Plugin implements IPacketHandler, IConnectionHa
     }
 
     @ForgeSubscribe
-    public void onUpdateSkins(ClientPlayerUpdateSkinsEvent event)
+    public void onUpdateSkins(ClientPlayerUpdateSkinEvent event)
     {
         String username = StringUtils.stripControlCodes(event.player.username);
         String name = username.toLowerCase();

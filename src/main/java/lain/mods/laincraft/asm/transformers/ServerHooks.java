@@ -1,6 +1,6 @@
-package lain.mods.laincraft.asm;
+package lain.mods.laincraft.asm.transformers;
 
-public class ServerHooks extends InstanceHookBase
+public class ServerHooks extends InstanceHook
 {
 
     public ServerHooks()

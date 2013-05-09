@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import lain.mods.laincraft.util.UnicodeInputStreamReader;
+import lain.mods.laincraft.util.io.UnicodeInputStreamReader;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 

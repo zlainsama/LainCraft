@@ -3,7 +3,7 @@ package lain.mods.inputfix;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-public class InputFix_ExpandedCharacters
+public class ExpandedCharacters
 {
 
     public static final String characters = getCharacters();
@@ -14,7 +14,7 @@ public class InputFix_ExpandedCharacters
 
         try
         {
-            BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(InputFix_ExpandedCharacters.class.getResourceAsStream("/echars.txt"), "UTF-8"));
+            BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(ExpandedCharacters.class.getResourceAsStream("/echars.txt"), "UTF-8"));
             String s1 = "";
 
             while ((s1 = bufferedreader.readLine()) != null)

@@ -1,4 +1,4 @@
-package lain.mods.laincraft.command;
+package lain.mods.simplecommands.command;
 
 import lain.mods.laincraft.LainCraft;
 import lain.mods.laincraft.player.ServerPlayer;

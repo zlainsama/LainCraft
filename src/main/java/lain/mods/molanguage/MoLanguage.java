@@ -22,10 +22,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import lain.mods.laincraft.Plugin;
 import lain.mods.laincraft.event.ClientPlayerSendMessageEvent;
-import lain.mods.laincraft.util.FileLocator;
-import lain.mods.laincraft.util.StreamUtils;
-import lain.mods.laincraft.util.UnicodeInputStreamReader;
 import lain.mods.laincraft.util.configuration.Config;
+import lain.mods.laincraft.util.io.FileLocator;
+import lain.mods.laincraft.util.io.StreamUtils;
+import lain.mods.laincraft.util.io.UnicodeInputStreamReader;
 import lain.mods.molanguage.util.Localization;
 import lain.mods.molanguage.util.LocalizationAdapter;
 import lain.mods.molanguage.util.LocalizationFile;
@@ -240,10 +240,6 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
     @Subscribe
     public void init(FMLPreInitializationEvent event)
     {
-        config = new Config(new File(event.getModConfigurationDirectory(), "MoLanguage.cfg"));
-        config.register(MoLanguage.class, null);
-        config.load();
-        config.save();
         if (enabled)
         {
             lo_extra = new Localization();
@@ -603,6 +599,20 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
     public int nextTickSpacing()
     {
         return 10;
+    }
+
+    @Override
+    public void onDisable()
+    {
+    }
+
+    @Override
+    public void onEnable()
+    {
+        config = getConfig();
+        config.register(MoLanguage.class, null);
+        config.load();
+        config.save();
     }
 
     @ForgeSubscribe

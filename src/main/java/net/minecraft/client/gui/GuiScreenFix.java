@@ -1,10 +1,12 @@
 package net.minecraft.client.gui;
 
-import lain.mods.inputfix.InputFix_Config;
+import java.nio.charset.Charset;
 import org.lwjgl.input.Keyboard;
 
-public class InputFix_GuiScreenFix
+public class GuiScreenFix
 {
+
+    public static String encoding = Charset.defaultCharset().name();
 
     public static void handleKeyboardInput(GuiScreen gui)
     {
@@ -29,10 +31,7 @@ public class InputFix_GuiScreenFix
                     char c2 = Keyboard.getEventCharacter();
                     try
                     {
-                        c2 = new String(new byte[]
-                            {
-                            (byte) c, (byte) c2
-                            }, InputFix_Config.encoding).charAt(0);
+                        c2 = new String(new byte[] { (byte) c, (byte) c2 }, encoding).charAt(0);
                         gui.keyTyped(c2, k);
                     }
                     catch (Throwable t)

@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-import lain.mods.laincraft.util.StreamUtils;
+import lain.mods.laincraft.util.io.StreamUtils;
 
 public class LocalizationFile
 {

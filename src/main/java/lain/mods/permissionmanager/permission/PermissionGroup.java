@@ -1,4 +1,4 @@
-package lain.mods.laincraft.permission;
+package lain.mods.permissionmanager.permission;
 
 import net.minecraft.command.ICommandSender;
 

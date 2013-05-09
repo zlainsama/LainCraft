@@ -1,4 +1,4 @@
-package lain.mods.laincraft.asm;
+package lain.mods.laincraft.asm.transformers;
 
 import java.util.HashMap;
 import org.objectweb.asm.ClassReader;
@@ -9,7 +9,7 @@ import org.objectweb.asm.Opcodes;
 import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import cpw.mods.fml.relauncher.IClassTransformer;
 
-public class InstanceHookBase implements IClassTransformer
+public class InstanceHook implements IClassTransformer
 {
 
     private class a extends ClassVisitor

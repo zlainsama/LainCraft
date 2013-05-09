@@ -1,19 +1,76 @@
 package lain.mods.laincraft;
 
-public abstract class Plugin implements Comparable
+import lain.mods.laincraft.util.configuration.Config;
+
+public abstract class Plugin implements Comparable<Plugin>
 {
 
-    public String getName()
+    private boolean enabled = false;
+
+    private Config config;
+
+    @Override
+    public int compareTo(Plugin o)
     {
-        return getClass().getSimpleName();
+        return getName().compareTo(o.getName());
+    }
+
+    public final void disable()
+    {
+        if (enabled)
+        {
+            enabled = false;
+            onDisable();
+        }
+    }
+
+    public final void enable()
+    {
+        if (!enabled)
+        {
+            enabled = true;
+            onEnable();
+        }
     }
 
     @Override
-    public int compareTo(Object o)
+    public boolean equals(Object o)
     {
         if (o instanceof Plugin)
-            return getName().compareTo(((Plugin) o).getName());
-        return 0;
+            return getClass().getName().equals(o.getClass().getName());
+        return false;
+    }
+
+    public final Config getConfig()
+    {
+        return config;
+    }
+
+    public abstract String getName();
+
+    @Override
+    public int hashCode()
+    {
+        return getClass().getName().hashCode();
+    }
+
+    public final boolean isEnabled()
+    {
+        return enabled;
+    }
+
+    public abstract void onDisable();
+
+    public abstract void onEnable();
+
+    public final void setConfig(Config config)
+    {
+        this.config = config;
+    }
+
+    protected final void setEnabled(boolean enabled)
+    {
+        this.enabled = enabled;
     }
 
 }

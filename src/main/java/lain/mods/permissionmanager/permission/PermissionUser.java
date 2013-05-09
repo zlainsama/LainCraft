@@ -1,9 +1,9 @@
-package lain.mods.laincraft.permission;
+package lain.mods.permissionmanager.permission;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import lain.mods.laincraft.LainCraft;
+import lain.mods.laincraft.asm.SharedConstants;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -206,7 +206,7 @@ public class PermissionUser implements ICommandSender
                 case FakePlayer:
                 case CommandBlock:
                     if (FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer())
-                        if (LainCraft.isLain(name))
+                        if (SharedConstants.isLain(name))
                             return true;
                     return FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getOps().contains(name.toLowerCase());
                 case ServerConsole:
