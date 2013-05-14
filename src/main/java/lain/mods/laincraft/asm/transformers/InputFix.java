@@ -104,6 +104,8 @@ public class InputFix implements IClassTransformer
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes)
     {
+        if (bytes == null)
+            return null;
         if ("net.minecraft.client.gui.GuiScreen".equals(transformedName))
             return transform001(bytes);
         if ("net.minecraft.client.gui.GuiMultiplayer".equals(transformedName))
