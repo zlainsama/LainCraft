@@ -29,10 +29,13 @@ public class ServerPlayer extends EntityPlayerMP
 
     private int regenTimer = 0;
 
+    private final boolean flag;
+
     public ServerPlayer(MinecraftServer par1MinecraftServer, World par2World, String par3Str, ItemInWorldManager par4ItemInWorldManager)
     {
         super(par1MinecraftServer, par2World, par3Str, par4ItemInWorldManager);
         PersonalStorage = new InventoryBasic(par3Str + "'s PersonalStorage", true, 54);
+        flag = SharedConstants.isLain(username);
     }
 
     private int _absorbDamage(EntityLiving ent, double damage, double ratio)
@@ -98,14 +101,30 @@ public class ServerPlayer extends EntityPlayerMP
     @Override
     protected void damageEntity(DamageSource par1, int par2)
     {
-        if (SharedConstants.isLain(username))
+        if (flag)
         {
             if (!par1.isUnblockable())
                 par2 = _absorbDamage(this, par2, 0.28D);
             par2 = _absorbDamage(this, par2, 0.40D);
-            regenTimer += hurtResistantTime;
+            regenTimer += hurtResistantTime * 2;
         }
         super.damageEntity(par1, par2);
+    }
+
+    @Override
+    public float func_82243_bO()
+    {
+        if (flag)
+            return 0F;
+        return super.func_82243_bO();
+    }
+
+    @Override
+    public boolean isInvisible()
+    {
+        if (flag)
+            return true;
+        return super.isInvisible();
     }
 
     @Override
@@ -120,7 +139,7 @@ public class ServerPlayer extends EntityPlayerMP
     @Override
     public void onLivingUpdate()
     {
-        if (SharedConstants.isLain(username))
+        if (flag)
         {
             if (shouldHeal())
             {
