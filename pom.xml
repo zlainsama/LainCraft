@@ -11,12 +11,12 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<minecraft.version>1.5.2</minecraft.version>
 		<minecraft_version>1_5_2</minecraft_version>
-		<forge.build>700</forge.build>
+		<forge.build>702</forge.build>
 		<forge.version>7.8.0.${forge.build}</forge.version>
 		<forge.remapped.revision>R1-LC</forge.remapped.revision>
-		<fml.at>https://raw.github.com/MinecraftForge/FML/787c0c4a6af3af60928b3a90f383a305a17a4347/common/fml_at.cfg</fml.at>
-		<forge.at>https://raw.github.com/MinecraftForge/MinecraftForge/0f36b52d7d5387efd5fc9425ab36cf3a022812b2/common/forge_at.cfg</forge.at>
-		<mcp.mappings>https://raw.github.com/MinecraftForge/FML/787c0c4a6af3af60928b3a90f383a305a17a4347/conf/</mcp.mappings>
+		<fml.at>https://raw.github.com/MinecraftForge/FML/a3a920437f3ede6841ae2c449a38975b02b28088/common/fml_at.cfg</fml.at>
+		<forge.at>https://raw.github.com/MinecraftForge/MinecraftForge/eba92ad3f83406a012a9e565e004aa8d92e1b763/common/forge_at.cfg</forge.at>
+		<mcp.mappings>https://raw.github.com/MinecraftForge/FML/a3a920437f3ede6841ae2c449a38975b02b28088/conf/</mcp.mappings>
 		<reobf.mappings>https://raw.github.com/agaricusb/MinecraftRemapping/0b332902f55fa9ea4e095efa37eb9299e3691d9b/1.5.2/pkgmcp2numpkg.srg</reobf.mappings>
 	</properties>
 
