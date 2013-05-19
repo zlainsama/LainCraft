@@ -84,7 +84,7 @@ public class SharedConstants
         try
         {
             Plugin plugin = (Plugin) Class.forName(className).newInstance();
-            plugin.setConfig(new Config(new File(getLainCraftDirFile(), plugin.getName() + ".cfg")));
+            plugin.setConfig(new Config(new File(getLainCraftDirFile(), plugin.getName() + ".cfg"), plugin.getName()));
             return plugin;
         }
         catch (Throwable t)

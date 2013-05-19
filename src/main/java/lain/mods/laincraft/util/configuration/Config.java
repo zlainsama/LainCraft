@@ -46,17 +46,19 @@ public class Config
     public static final Pattern lineMarker = Pattern.compile("\\\\n");
     public static final String newLine = System.getProperty("line.separator");
 
-    public static final String signature = "SimpleConfiguration v1";
+    public static final String signature = "SimpleConfiguration v1 [%s]";
 
     private final File file;
+    private final String name;
     private final Map<Field, List<Object>> linkedFields;
     private final Map<String, ConfigProperty> props;
 
     public String comment;
 
-    public Config(File par1)
+    public Config(File par1, String par2)
     {
         file = par1;
+        name = par2;
         linkedFields = new HashMap<Field, List<Object>>();
         props = new HashMap<String, ConfigProperty>();
     }
@@ -119,7 +121,7 @@ public class Config
                 line = line.trim();
                 if (!flag)
                 {
-                    if (line.equals("# " + signature))
+                    if (!line.equals("# " + String.format(signature, name)))
                         break;
                     flag = true;
                 }
@@ -291,7 +293,7 @@ public class Config
         try
         {
             buf = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
-            buf.write("# " + signature + newLine);
+            buf.write("# " + String.format(signature, name) + newLine);
             buf.write("# WARNING: this file was saved in UTF-8" + newLine + newLine);
             if (comment != null)
             {
