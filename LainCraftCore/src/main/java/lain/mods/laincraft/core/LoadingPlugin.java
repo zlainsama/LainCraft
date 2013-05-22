@@ -72,7 +72,7 @@ public class LoadingPlugin implements IFMLLoadingPlugin, IFMLCallHook
     @Override
     public String getModContainerClass()
     {
-        return null;
+        return "lain.mods.laincraft.core.LainCraftCore";
     }
 
     @Override
