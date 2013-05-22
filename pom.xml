@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lain.mods</groupId>
 	<artifactId>LainCraft</artifactId>
-	<version>1.1</version>
+	<version>1.1a</version>
 	<name>LainCraft</name>
 	<url>https://github.com/zlainsama/LainCraft</url>
 
@@ -11,12 +11,12 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<minecraft.version>1.5.2</minecraft.version>
 		<minecraft_version>1_5_2</minecraft_version>
-		<forge.build>707</forge.build>
+		<forge.build>710</forge.build>
 		<forge.version>7.8.0.${forge.build}</forge.version>
 		<forge.remapped.revision>R1-LC</forge.remapped.revision>
-		<fml.at>https://raw.github.com/MinecraftForge/FML/4922e90d81d8b8b9374c4d04858a06c5bf03965c/common/fml_at.cfg</fml.at>
-		<forge.at>https://raw.github.com/MinecraftForge/MinecraftForge/b293251c175b0b6dbe83b029dd7adc3149b7612a/common/forge_at.cfg</forge.at>
-		<mcp.mappings>https://raw.github.com/MinecraftForge/FML/4922e90d81d8b8b9374c4d04858a06c5bf03965c/conf/</mcp.mappings>
+		<fml.at>https://raw.github.com/MinecraftForge/FML/3bf50c4bbe82f0cc317dafcf2a569cb5210bc738/common/fml_at.cfg</fml.at>
+		<forge.at>https://raw.github.com/MinecraftForge/MinecraftForge/276929901ff50466b2c37e1f00bd871f7519605a/common/forge_at.cfg</forge.at>
+		<mcp.mappings>https://raw.github.com/MinecraftForge/FML/3bf50c4bbe82f0cc317dafcf2a569cb5210bc738/conf/</mcp.mappings>
 		<reobf.mappings>https://raw.github.com/agaricusb/MinecraftRemapping/0b332902f55fa9ea4e095efa37eb9299e3691d9b/1.5.2/pkgmcp2numpkg.srg</reobf.mappings>
 	</properties>
 
