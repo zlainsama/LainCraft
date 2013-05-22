@@ -1,11 +1,13 @@
 package lain.mods.molanguage.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import net.minecraft.util.StringTranslate;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
 public abstract class LocalizationAdapter
@@ -227,6 +229,118 @@ public abstract class LocalizationAdapter
                     System.err.println("Good bye JVM, deleting self.");
                     adapters.remove(this);
                 }
+            }
+        };
+        // CustomNPCs Server Localization Helper
+        new LocalizationAdapter()
+        {
+            Constructor constructorLanguageLoaderServer;
+            String loadedLanguage;
+
+            @Override
+            public void addLocalization(String key, String lang, String value)
+            {
+            }
+
+            @Override
+            public void fillProperties(Properties properties)
+            {
+            }
+
+            @Override
+            public void notifyLanguageChanges(boolean force)
+            {
+                try
+                {
+                    String currentLanguage = StringTranslate.getInstance().getCurrentLanguage();
+                    if (force || currentLanguage == null || !currentLanguage.equals(loadedLanguage))
+                    {
+                        constructorLanguageLoaderServer.newInstance(new Object[0]);
+                        loadedLanguage = currentLanguage;
+                    }
+                }
+                catch (Throwable t)
+                {
+                    System.err.println("Error occured.");
+                    System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+                    System.err.println("Good bye JVM, deleting self.");
+                    adapters.remove(this);
+                }
+            }
+
+            @Override
+            public boolean setup() throws Throwable
+            {
+                if (FMLCommonHandler.instance().getSide().isClient())
+                    return false;
+                Class cls = Class.forName("noppes.npcs.LanguageLoaderServer");
+                constructorLanguageLoaderServer = cls.getDeclaredConstructor(new Class[0]);
+                constructorLanguageLoaderServer.setAccessible(true);
+                return true;
+            }
+
+            @Override
+            public void update(boolean force)
+            {
+                notifyLanguageChanges(force);
+            }
+        };
+        // CustomNPCs Client Localization Helper
+        new LocalizationAdapter()
+        {
+            Method loadLanguage; // void loadLanguage()
+            Field current; // ITexturePack
+            String loadedLanguage;
+
+            @Override
+            public void addLocalization(String key, String lang, String value)
+            {
+            }
+
+            @Override
+            public void fillProperties(Properties properties)
+            {
+            }
+
+            @Override
+            public void notifyLanguageChanges(boolean force)
+            {
+                try
+                {
+                    String currentLanguage = StringTranslate.getInstance().getCurrentLanguage();
+                    if (force || currentLanguage == null || !currentLanguage.equals(loadedLanguage))
+                    {
+                        current.set(null, null);
+                        loadLanguage.invoke(null, new Object[0]);
+                        loadedLanguage = currentLanguage;
+                    }
+                }
+                catch (Throwable t)
+                {
+                    System.err.println("Error occured.");
+                    System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+                    System.err.println("Good bye JVM, deleting self.");
+                    adapters.remove(this);
+                }
+            }
+
+            @Override
+            public boolean setup() throws Throwable
+            {
+                if (!FMLCommonHandler.instance().getSide().isClient())
+                    return false;
+                Class cls = Class.forName("noppes.npcs.LanguageLoaderClient");
+                loadLanguage = cls.getDeclaredMethod("loadLanguage", new Class[0]);
+                loadLanguage.setAccessible(true);
+                current = cls.getDeclaredField("current");
+                current.setAccessible(true);
+                return true;
+            }
+
+            @Override
+            public void update(boolean force)
+            {
+                notifyLanguageChanges(force);
             }
         };
     }
