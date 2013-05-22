@@ -12,6 +12,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EntityDamageSource;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.Event.Result;
 import net.minecraftforge.event.ForgeSubscribe;
@@ -46,22 +47,26 @@ public class MobControl
         config = new Config(new File(SharedConstants.getLainCraftDirFile(), "MobControl.cfg"), "MobControl");
     }
 
-    public void loadEntitySettings(String entityName, boolean tamed)
+    public void loadEntitySettings(String entityName, boolean tamed, String displayName)
     {
         if (!tamed)
         {
             if (!config.containsKey("SPAWN." + entityName))
                 config.setProperty("SPAWN." + entityName, "true");
+            config.get("SPAWN." + entityName).comment = displayName;
             Spawn.put(entityName, Boolean.parseBoolean(config.getProperty("SPAWN." + entityName)));
         }
         if (!config.containsKey("HEALTH." + entityName))
             config.setProperty("HEALTH." + entityName, "1.0");
+        config.get("HEALTH." + entityName).comment = displayName;
         HealthMultiplier.put(entityName, Double.parseDouble(config.getProperty("HEALTH." + entityName)));
         if (!config.containsKey("DAMAGE." + entityName))
             config.setProperty("DAMAGE." + entityName, "1.0");
+        config.get("DAMAGE." + entityName).comment = displayName;
         DamageMultiplier.put(entityName, Double.parseDouble(config.getProperty("DAMAGE." + entityName)));
         if (!config.containsKey("INVINCIBILITY." + entityName))
             config.setProperty("INVINCIBILITY." + entityName, "false");
+        config.get("INVINCIBILITY." + entityName).comment = displayName;
         Invincibility.put(entityName, Boolean.parseBoolean(config.getProperty("INVINCIBILITY." + entityName)));
     }
 
@@ -74,9 +79,10 @@ public class MobControl
             Class cls = (Class) EntityList.stringToClassMapping.get(name);
             if (EntityLiving.class.isAssignableFrom(cls))
             {
-                loadEntitySettings(name, false);
+                String displayName = StatCollector.translateToLocal("entity." + name + ".name");
+                loadEntitySettings(name, false, displayName);
                 if (EntityTameable.class.isAssignableFrom(cls))
-                    loadEntitySettings(name + ".Tamed", true);
+                    loadEntitySettings(name + ".Tamed", true, displayName);
             }
         }
         config.save();
