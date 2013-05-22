@@ -13,4 +13,5 @@ To Build
     mvn package
   ```
 
-  + for USER: put in __COREMODS instead of mods__
+  + put LainCraftCore in coremods
+  + put others in mods or coremods or LainCraft
