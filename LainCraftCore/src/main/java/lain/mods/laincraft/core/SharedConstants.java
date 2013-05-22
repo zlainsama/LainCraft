@@ -1,4 +1,4 @@
-package lain.mods.laincraft.utils;
+package lain.mods.laincraft.core;
 
 import java.io.File;
 import java.util.List;
@@ -38,9 +38,7 @@ public class SharedConstants
 
     public static File getLainCraftDirFile()
     {
-        if (mcDir == null)
-            return null;
-        File dir = new File(mcDir, "LainCraft");
+        File dir = new File(getMinecraftDirFile(), "LainCraft");
         if (!dir.exists() && !dir.mkdirs())
             throw new RuntimeException("cannot create directory \'" + dir.getAbsolutePath() + "\'");
         if (!dir.isDirectory())
@@ -50,7 +48,7 @@ public class SharedConstants
 
     public static File getMinecraftDirFile()
     {
-        return mcDir;
+        return mcDir == null ? new File(".") : mcDir;
     }
 
     public static boolean getRuntimeDeobfuscationEnabled()
@@ -63,32 +61,32 @@ public class SharedConstants
         return "zlainsama".equalsIgnoreCase(StringUtils.stripControlCodes(username));
     }
 
-    public static void setActualClassLoader(RelaunchClassLoader classLoader)
+    protected static void setActualClassLoader(RelaunchClassLoader classLoader)
     {
         actualClassLoader = classLoader;
     }
 
-    public static void setCoreJarFile(File file)
+    protected static void setCoreJarFile(File file)
     {
         coreJar = file;
     }
 
-    public static void setCorePluginsList(List<IFMLLoadingPlugin> list)
+    protected static void setCorePluginsList(List<IFMLLoadingPlugin> list)
     {
         corePlugins = list;
     }
 
-    public static void setDeobfuscationFileName(String name)
+    protected static void setDeobfuscationFileName(String name)
     {
         deobfuscationFileName = name;
     }
 
-    public static void setMinecraftDirFile(File file)
+    protected static void setMinecraftDirFile(File file)
     {
         mcDir = file;
     }
 
-    public static void setRuntimeDeobfuscationEnabled(boolean enabled)
+    protected static void setRuntimeDeobfuscationEnabled(boolean enabled)
     {
         runtimeDeobfuscationEnabled = enabled;
     }
