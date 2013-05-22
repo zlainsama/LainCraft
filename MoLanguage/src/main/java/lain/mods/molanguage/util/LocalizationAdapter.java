@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Properties;
 import net.minecraft.util.StringTranslate;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.registry.LanguageRegistry;
 
 public abstract class LocalizationAdapter
 {
@@ -323,6 +324,7 @@ public abstract class LocalizationAdapter
     public static void addLocalization(String key, String lang, String value)
     {
         copy.put(key, value, lang);
+        LanguageRegistry.instance().addStringLocalization(key, lang, value);
     }
 
     public LocalizationAdapter()
