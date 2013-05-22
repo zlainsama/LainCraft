@@ -236,10 +236,12 @@ public abstract class LocalizationAdapter
         {
             Constructor constructorLanguageLoaderServer;
             String loadedLanguage;
+            Localization copy = new Localization();
 
             @Override
             public void addLocalization(String key, String lang, String value)
             {
+                copy.put(key, value, lang);
             }
 
             @Override
@@ -256,6 +258,8 @@ public abstract class LocalizationAdapter
                     if (force || currentLanguage == null || !currentLanguage.equals(loadedLanguage))
                     {
                         constructorLanguageLoaderServer.newInstance(new Object[0]);
+                        if (copy.getTable(currentLanguage) != null)
+                            StringTranslate.getInstance().translateTable.putAll(copy.getTable(currentLanguage));
                         loadedLanguage = currentLanguage;
                     }
                 }
@@ -291,10 +295,12 @@ public abstract class LocalizationAdapter
             Method loadLanguage; // void loadLanguage()
             Field current; // ITexturePack
             String loadedLanguage;
+            Localization copy = new Localization();
 
             @Override
             public void addLocalization(String key, String lang, String value)
             {
+                copy.put(key, value, lang);
             }
 
             @Override
@@ -312,6 +318,8 @@ public abstract class LocalizationAdapter
                     {
                         current.set(null, null);
                         loadLanguage.invoke(null, new Object[0]);
+                        if (copy.getTable(currentLanguage) != null)
+                            StringTranslate.getInstance().translateTable.putAll(copy.getTable(currentLanguage));
                         loadedLanguage = currentLanguage;
                     }
                 }
