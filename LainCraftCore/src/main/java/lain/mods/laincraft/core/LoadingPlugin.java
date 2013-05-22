@@ -60,7 +60,7 @@ public class LoadingPlugin implements IFMLLoadingPlugin, IFMLCallHook
     @Override
     public String[] getASMTransformerClass()
     {
-        return null;
+        return new String[] { "lain.mods.laincraft.core.ASMTransformer" };
     }
 
     @Override
