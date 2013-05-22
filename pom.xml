@@ -9,7 +9,6 @@
 	<description></description>
 	<url>https://github.com/zlainsama/LainCraft</url>
 	<modules>
-		<module>Core</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
