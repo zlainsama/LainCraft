@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.Properties;
 import net.minecraft.util.StringTranslate;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.registry.LanguageRegistry;
 
 public abstract class LocalizationAdapter
 {
+
+    private static final Localization copy = new Localization();
 
     public static final List<LocalizationAdapter> adapters = new ArrayList<LocalizationAdapter>();
 
@@ -20,12 +21,6 @@ public abstract class LocalizationAdapter
         // Vanilla System (FML)
         new LocalizationAdapter()
         {
-            @Override
-            public void addLocalization(String key, String lang, String value)
-            {
-                LanguageRegistry.instance().addStringLocalization(key, lang, value);
-            }
-
             @Override
             public void fillProperties(Properties properties)
             {
@@ -62,13 +57,6 @@ public abstract class LocalizationAdapter
             Field mappings; // Properties
             Method get; // String get(String key);
             String prevLoadedLanguage;
-            Localization copy = new Localization();
-
-            @Override
-            public void addLocalization(String key, String lang, String value)
-            {
-                copy.put(key, value, lang);
-            }
 
             @Override
             public void fillProperties(Properties properties)
@@ -148,13 +136,6 @@ public abstract class LocalizationAdapter
             Method get; // String get(String key);
             Field instance; // Object
             String prevLoadedLanguage;
-            Localization copy = new Localization();
-
-            @Override
-            public void addLocalization(String key, String lang, String value)
-            {
-                copy.put(key, value, lang);
-            }
 
             @Override
             public void fillProperties(Properties properties)
@@ -236,13 +217,6 @@ public abstract class LocalizationAdapter
         {
             Constructor constructorLanguageLoaderServer;
             String loadedLanguage;
-            Localization copy = new Localization();
-
-            @Override
-            public void addLocalization(String key, String lang, String value)
-            {
-                copy.put(key, value, lang);
-            }
 
             @Override
             public void fillProperties(Properties properties)
@@ -295,13 +269,6 @@ public abstract class LocalizationAdapter
             Method loadLanguage; // void loadLanguage()
             Field current; // ITexturePack
             String loadedLanguage;
-            Localization copy = new Localization();
-
-            @Override
-            public void addLocalization(String key, String lang, String value)
-            {
-                copy.put(key, value, lang);
-            }
 
             @Override
             public void fillProperties(Properties properties)
@@ -353,6 +320,11 @@ public abstract class LocalizationAdapter
         };
     }
 
+    public static void addLocalization(String key, String lang, String value)
+    {
+        copy.put(key, value, lang);
+    }
+
     public LocalizationAdapter()
     {
         try
@@ -365,8 +337,6 @@ public abstract class LocalizationAdapter
             System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
         }
     }
-
-    public abstract void addLocalization(String key, String lang, String value);
 
     public abstract void fillProperties(Properties properties);
 

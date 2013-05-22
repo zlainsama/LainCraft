@@ -14,6 +14,11 @@ public class Localization
         tables = new ConcurrentHashMap<String, Map<String, String>>();
     }
 
+    public void clear()
+    {
+        tables.clear();
+    }
+
     public String get(String key, String lang)
     {
         if (tables.containsKey(lang))

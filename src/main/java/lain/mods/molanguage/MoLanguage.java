@@ -236,8 +236,7 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
         for (String k : data.keySet())
         {
             String v = data.get(k);
-            for (LocalizationAdapter adapter : LocalizationAdapter.adapters)
-                adapter.addLocalization(k, lang, v);
+            LocalizationAdapter.addLocalization(k, lang, v);
         }
     }
 
