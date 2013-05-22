@@ -1,0 +1,18 @@
+[
+{
+  "modid": "MoLanguage",
+  "name": "MoLanguage",
+  "description": "",
+  "credits": "",
+  "logoFile": "",
+  "version": "",
+  "mcversion": "",
+  "url": "",
+  "updateUrl": "",
+  "authors": [ "Lain" ],
+  "screenshots": [ "" ],
+  "dependencies": [
+     "LainCraftCore"
+  ]
+}
+]

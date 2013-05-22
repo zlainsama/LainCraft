@@ -11,6 +11,8 @@
 	<modules>
 		<module>LainCraftCore</module>
 		<module>InputFix</module>
+		<module>SkinManager</module>
+		<module>MoLanguage</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

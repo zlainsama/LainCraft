@@ -34,10 +34,11 @@ public class LoadingPlugin implements IFMLLoadingPlugin, IFMLCallHook
                 {
                     jar = new JarFile(f);
                     String transformer = jar.getManifest().getMainAttributes().getValue("ASMTransformer");
-                    if (transformer != null && !transformer.isEmpty())
+                    if (transformer != null)
                     {
                         SharedConstants.getActualClassLoader().addURL(f.toURI().toURL());
-                        SharedConstants.getActualClassLoader().registerTransformer(transformer);
+                        if (!transformer.isEmpty())
+                            SharedConstants.getActualClassLoader().registerTransformer(transformer);
                     }
                 }
                 catch (Throwable ignored)
