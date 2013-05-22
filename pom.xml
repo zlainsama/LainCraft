@@ -16,6 +16,7 @@
 		<module>SimpleCommands</module>
 		<module>PermissionManager</module>
 		<module>MobControl</module>
+		<module>RecipeRemover</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
