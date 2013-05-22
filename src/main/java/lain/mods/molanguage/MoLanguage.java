@@ -174,7 +174,11 @@ public class MoLanguage extends Plugin implements IScheduledTickHandler
         File f = new File(dir, lang + ".lang");
         String prevLang = StringTranslate.getInstance().getCurrentLanguage();
         StringTranslate.getInstance().setLanguage(lang, true);
-        Properties data = StringTranslate.getInstance().translateTable;
+        for (LocalizationAdapter adapter : LocalizationAdapter.adapters)
+            adapter.update(true);
+        Properties data = new Properties();
+        for (LocalizationAdapter adapter : LocalizationAdapter.adapters)
+            adapter.fillProperties(data);
         String newLine = Config.newLine;
         FileOutputStream fos = new FileOutputStream(f);
         BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(fos, "UTF-8"));
