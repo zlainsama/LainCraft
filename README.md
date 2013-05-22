@@ -10,7 +10,6 @@ To Build
   + Run Command:
 
   ```
-    mvn initialize -P -built
     mvn package
   ```
 
