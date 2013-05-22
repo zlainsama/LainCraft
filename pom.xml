@@ -25,6 +25,7 @@
 		<forge.mainversion>${forge.majorversion}.${forge.minorversion}.${forge.revisionversion}</forge.mainversion>
 		<forgeapi.version>${minecraft.version}-${forge.mainversion}-SNAPSHOT</forgeapi.version>
 		<reobf.mappings>https://raw.github.com/agaricusb/MinecraftRemapping/0b332902f55fa9ea4e095efa37eb9299e3691d9b/1.5.2/pkgmcp2numpkg.srg</reobf.mappings>
+		<ASMTransformer></ASMTransformer>
 	</properties>
 	<repositories>
 		<repository>
@@ -135,6 +136,11 @@
 						<version>2.4</version>
 						<configuration>
 							<outputDirectory>../target</outputDirectory>
+							<archive>
+								<manifestEntries>
+									<ASMTransformer>${ASMTransformer}</ASMTransformer>
+								</manifestEntries>
+							</archive>
 						</configuration>
 					</plugin>
 				</plugins>
