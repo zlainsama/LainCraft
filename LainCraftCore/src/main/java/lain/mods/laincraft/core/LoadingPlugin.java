@@ -17,8 +17,8 @@ public class LoadingPlugin implements IFMLLoadingPlugin, IFMLCallHook
     public Void call() throws Exception
     {
         discoverTransformers(SharedConstants.getLainCraftDirFile());
-        discoverTransformers(new File(SharedConstants.getMinecraftDirFile(), "coremods"));
-        discoverTransformers(new File(SharedConstants.getMinecraftDirFile(), "mods"));
+        // discoverTransformers(new File(SharedConstants.getMinecraftDirFile(), "coremods"));
+        // discoverTransformers(new File(SharedConstants.getMinecraftDirFile(), "mods"));
         return null;
     }
 
