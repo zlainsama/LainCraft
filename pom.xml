@@ -3,35 +3,32 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lain.mods</groupId>
 	<artifactId>LainCraft</artifactId>
-	<version>1.1a</version>
+	<version>2.0</version>
+	<packaging>pom</packaging>
 	<name>LainCraft</name>
+	<description></description>
 	<url>https://github.com/zlainsama/LainCraft</url>
-
+	<modules>
+		<module>LainCraftCore</module>
+		<module>InputFix</module>
+		<module>SkinManager</module>
+		<module>MoLanguage</module>
+		<module>SimpleCommands</module>
+		<module>PermissionManager</module>
+		<module>MobControl</module>
+		<module>RecipeRemover</module>
+	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<minecraft.version>1.5.2</minecraft.version>
-		<minecraft_version>1_5_2</minecraft_version>
-		<forge.build>710</forge.build>
-		<forge.version>7.8.0.${forge.build}</forge.version>
-		<forge.remapped.revision>R1-LC</forge.remapped.revision>
-		<fml.at>https://raw.github.com/MinecraftForge/FML/3bf50c4bbe82f0cc317dafcf2a569cb5210bc738/common/fml_at.cfg</fml.at>
-		<forge.at>https://raw.github.com/MinecraftForge/MinecraftForge/276929901ff50466b2c37e1f00bd871f7519605a/common/forge_at.cfg</forge.at>
-		<mcp.mappings>https://raw.github.com/MinecraftForge/FML/3bf50c4bbe82f0cc317dafcf2a569cb5210bc738/conf/</mcp.mappings>
+		<forge.majorversion>7</forge.majorversion>
+		<forge.minorversion>8</forge.minorversion>
+		<forge.revisionversion>0</forge.revisionversion>
+		<forge.mainversion>${forge.majorversion}.${forge.minorversion}.${forge.revisionversion}</forge.mainversion>
+		<forgeapi.version>${minecraft.version}-${forge.mainversion}-SNAPSHOT</forgeapi.version>
 		<reobf.mappings>https://raw.github.com/agaricusb/MinecraftRemapping/0b332902f55fa9ea4e095efa37eb9299e3691d9b/1.5.2/pkgmcp2numpkg.srg</reobf.mappings>
+		<ASMTransformer></ASMTransformer>
 	</properties>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>sonatype-oss-public</id>
-			<url>https://oss.sonatype.org/content/groups/public</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
 	<repositories>
 		<repository>
 			<id>sonatype-oss-public</id>
@@ -44,27 +41,26 @@
 			</snapshots>
 		</repository>
 	</repositories>
-
-	<profiles>
-		<profile>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<id>built</id>
-			<dependencies>
-				<!-- after the remapped artifact is built, add it a dependency -->
-				<dependency>
-					<groupId>net.minecraftforge</groupId>
-					<artifactId>minecraft-forge</artifactId>
-					<version>${forge.version}-${forge.remapped.revision}</version>
-					<type>jar</type>
-					<scope>compile</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-	</profiles>
-
+	<pluginRepositories>
+		<pluginRepository>
+			<id>sonatype-oss-public</id>
+			<url>https://oss.sonatype.org/content/groups/public</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 	<dependencies>
+		<dependency>
+			<groupId>net.md-5</groupId>
+			<artifactId>ForgeAPI</artifactId>
+			<version>${forgeapi.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm-all</artifactId>
@@ -90,79 +86,89 @@
 			<artifactId>argo</artifactId>
 			<version>3.2</version>
 		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>2.10.1</version>
+		</dependency>
 	</dependencies>
-
-	<build>
-		<defaultGoal>clean package</defaultGoal>
-		<finalName>${project.name}</finalName>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.0</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>net.md-5</groupId>
-				<artifactId>specialsource-maven-plugin</artifactId>
-				<version>1.1-SNAPSHOT</version>
-				<executions>
-					<execution>
-						<id>install-remapped-forge</id>
-						<phase>initialize</phase>
-						<goals>
-							<goal>install-remapped-file</goal>
-						</goals>
+	<profiles>
+		<profile>
+			<id>build</id>
+			<activation>
+				<file>
+					<missing>marker</missing>
+				</file>
+			</activation>
+			<build>
+				<finalName>${project.artifactId}-${buildVersion}</finalName>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.0</version>
 						<configuration>
-							<groupId>net.minecraftforge</groupId>
-							<artifactId>minecraft-forge</artifactId>
-							<version>${forge.version}-${forge.remapped.revision}</version>
-							<inJars>
-								<param>http://s3.amazonaws.com/Minecraft.Download/versions/${minecraft.version}/${minecraft.version}.jar</param>
-								<param>http://s3.amazonaws.com/Minecraft.Download/versions/${minecraft.version}/minecraft_server.${minecraft.version}.jar</param>
-								<!-- <param>http://assets.minecraft.net/${minecraft_version}/minecraft_server.jar</param> -->
-								<!-- <param>http://assets.minecraft.net/${minecraft_version}/minecraft.jar</param> -->
-								<param>http://files.minecraftforge.net/minecraftforge/minecraftforge-universal-${minecraft.version}-${forge.version}.zip</param>
-							</inJars>
-							<srgIn>${mcp.mappings}</srgIn> <!-- obf -> mcp csvnames for development -->
-							<accessTransformers>
-								<param>${fml.at}</param>
-								<param>${forge.at}</param>
-								<!-- magic -->
-								<param>pattern:*-synthetic **</param>
-							</accessTransformers>
+							<source>1.6</source>
+							<target>1.6</target>
 						</configuration>
-					</execution>
-					<execution>
-						<id>reobfuscate</id>
-						<phase>package</phase>
-						<goals>
-							<goal>remap</goal>
-						</goals>
+					</plugin>
+					<plugin>
+						<groupId>net.md-5</groupId>
+						<artifactId>specialsource-maven-plugin</artifactId>
+						<version>1.1-SNAPSHOT</version>
+						<executions>
+							<execution>
+								<id>reobfuscate</id>
+								<phase>package</phase>
+								<goals>
+									<goal>remap</goal>
+								</goals>
+								<configuration>
+									<srgIn>${reobf.mappings}</srgIn> <!-- mcp csvnames -> mcp srgnames for version-independence -->
+									<remappedDependencies>
+										<param>net.md-5:ForgeAPI:${forgeapi.version}:jar</param>
+									</remappedDependencies>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<version>2.4</version>
 						<configuration>
-							<srgIn>${reobf.mappings}</srgIn> <!-- mcp csvnames -> mcp srgnames for version-independence -->
-							<remappedDependencies>
-								<param>net.minecraftforge:minecraft-forge:${forge.version}-${forge.remapped.revision}:jar</param>
-							</remappedDependencies>
+							<outputDirectory>../target</outputDirectory>
+							<archive>
+								<manifestEntries>
+									<ASMTransformer>${ASMTransformer}</ASMTransformer>
+								</manifestEntries>
+							</archive>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<archive>
-						<manifestEntries>
-							<FMLCorePlugin>lain.mods.laincraft.asm.LainCraftCorePlugin</FMLCorePlugin>
-						</manifestEntries>
-					</archive>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>static_build_number</id>
+			<activation>
+				<property>
+					<name>!env.BUILD_NUMBER</name>
+				</property>
+			</activation>
+			<properties>
+				<buildVersion>${project.version}</buildVersion>
+			</properties>
+		</profile>
+		<profile>
+			<id>dynamic_build_number</id>
+			<activation>
+				<property>
+					<name>env.BUILD_NUMBER</name>
+				</property>
+			</activation>
+			<properties>
+				<buildVersion>${project.version}-${env.BUILD_NUMBER}</buildVersion>
+			</properties>
+		</profile>
+	</profiles>
 </project>

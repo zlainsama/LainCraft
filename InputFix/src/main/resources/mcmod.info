@@ -1,0 +1,18 @@
+[
+{
+  "modid": "InputFix",
+  "name": "InputFix",
+  "description": "InputFix is a way to enable multi word input via input methods in minecraft.",
+  "credits": "pa001024",
+  "logoFile": "",
+  "version": "",
+  "mcversion": "",
+  "url": "",
+  "updateUrl": "",
+  "authors": [ "Lain" ],
+  "screenshots": [ "" ],
+  "dependencies": [
+     "LainCraftCore"
+  ]
+}
+]

@@ -10,8 +10,8 @@ To Build
   + Run Command:
 
   ```
-    mvn initialize -P -built
     mvn package
   ```
 
-  + for USER: put in __COREMODS instead of mods__
+  + put LainCraftCore in coremods
+  + put others in mods or coremods or LainCraft
