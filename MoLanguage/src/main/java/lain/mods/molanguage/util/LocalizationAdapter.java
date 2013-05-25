@@ -51,6 +51,84 @@ public abstract class LocalizationAdapter
             {
             }
         };
+        // BuildCraft System
+        new LocalizationAdapter()
+        {
+            Field loadedLanguage; // String
+            Field mappings; // Properties
+            Method get; // String get(String key);
+            String prevLoadedLanguage;
+
+            @Override
+            public void fillProperties(Properties properties)
+            {
+                try
+                {
+                    Properties table = (Properties) mappings.get(null);
+                    properties.putAll(table);
+                }
+                catch (Throwable t)
+                {
+                    System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+                }
+            }
+
+            @Override
+            public void notifyLanguageChanges(boolean force)
+            {
+                try
+                {
+                    if (force)
+                        loadedLanguage.set(null, null);
+                    get.invoke(null, "");
+                }
+                catch (Throwable t)
+                {
+                    System.err.println("Error occured.");
+                    System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+                    System.err.println("Good bye JVM, deleting self.");
+                    adapters.remove(this);
+                }
+            }
+
+            @Override
+            public boolean setup() throws Throwable
+            {
+                Class cls = Class.forName("buildcraft.core.utils.Localization");
+                loadedLanguage = cls.getDeclaredField("loadedLanguage");
+                loadedLanguage.setAccessible(true);
+                mappings = cls.getDeclaredField("mappings");
+                mappings.setAccessible(true);
+                get = cls.getDeclaredMethod("get", String.class);
+                get.setAccessible(true);
+                return true;
+            }
+
+            @Override
+            public void update(boolean force)
+            {
+                try
+                {
+                    String language = (String) loadedLanguage.get(null);
+                    if (force || prevLoadedLanguage == null || !prevLoadedLanguage.equals(language))
+                    {
+                        if (force)
+                            notifyLanguageChanges(true);
+                        Properties table = (Properties) mappings.get(null);
+                        if (copy.getTable(language) != null)
+                            table.putAll(copy.getTable(language));
+                        prevLoadedLanguage = language;
+                    }
+                }
+                catch (Throwable t)
+                {
+                    System.err.println("Error occured.");
+                    System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
+                    System.err.println("Good bye JVM, deleting self.");
+                    adapters.remove(this);
+                }
+            }
+        };
         // CoFH System
         new LocalizationAdapter()
         {
