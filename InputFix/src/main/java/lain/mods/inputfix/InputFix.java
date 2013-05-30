@@ -11,7 +11,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 public class InputFix
 {
 
-    @Config.Property(defaultValue = "GBK")
+    @Config.Property(defaultValue = "auto")
     public static String encoding;
 
     @Mod.PreInit
@@ -21,7 +21,10 @@ public class InputFix
         config.register(InputFix.class, null);
         config.load();
         config.save();
-        GuiScreenFix.encoding = encoding;
+        if ("auto".equals(encoding))
+            GuiScreenFix.encoding = System.getProperty("file.encoding");
+        else
+            GuiScreenFix.encoding = encoding;
     }
 
 }
