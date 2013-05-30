@@ -20,11 +20,10 @@ public class InputFix
         Config config = new Config(new File(SharedConstants.getLainCraftDirFile(), "InputFix.cfg"), "InputFix");
         config.register(InputFix.class, null);
         config.load();
-        config.save();
         if ("auto".equals(encoding))
-            GuiScreenFix.encoding = System.getProperty("file.encoding");
-        else
-            GuiScreenFix.encoding = encoding;
+            encoding = System.getProperty("file.encoding");
+        config.save();
+        GuiScreenFix.encoding = encoding;
     }
 
 }
