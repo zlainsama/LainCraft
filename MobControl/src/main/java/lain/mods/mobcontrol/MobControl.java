@@ -51,23 +51,23 @@ public class MobControl
     {
         if (!tamed)
         {
-            if (!config.containsKey("SPAWN." + entityName))
-                config.setProperty("SPAWN." + entityName, "true");
-            config.get("SPAWN." + entityName).comment = displayName;
-            Spawn.put(entityName, Boolean.parseBoolean(config.getProperty("SPAWN." + entityName)));
+            if (!config.containsKey(entityName + ".SPAWN"))
+                config.setProperty(entityName + ".SPAWN", "true");
+            config.get(entityName + ".SPAWN").comment = displayName;
+            Spawn.put(entityName, Boolean.parseBoolean(config.getProperty(entityName + ".SPAWN")));
         }
-        if (!config.containsKey("HEALTH." + entityName))
-            config.setProperty("HEALTH." + entityName, "1.0");
-        config.get("HEALTH." + entityName).comment = displayName;
-        HealthMultiplier.put(entityName, Double.parseDouble(config.getProperty("HEALTH." + entityName)));
-        if (!config.containsKey("DAMAGE." + entityName))
-            config.setProperty("DAMAGE." + entityName, "1.0");
-        config.get("DAMAGE." + entityName).comment = displayName;
-        DamageMultiplier.put(entityName, Double.parseDouble(config.getProperty("DAMAGE." + entityName)));
-        if (!config.containsKey("INVINCIBILITY." + entityName))
-            config.setProperty("INVINCIBILITY." + entityName, "false");
-        config.get("INVINCIBILITY." + entityName).comment = displayName;
-        Invincibility.put(entityName, Boolean.parseBoolean(config.getProperty("INVINCIBILITY." + entityName)));
+        if (!config.containsKey(entityName + ".HEALTH"))
+            config.setProperty(entityName + ".HEALTH", "1.0");
+        config.get(entityName + ".HEALTH").comment = displayName;
+        HealthMultiplier.put(entityName, Double.parseDouble(config.getProperty(entityName + ".HEALTH")));
+        if (!config.containsKey(entityName + ".DAMAGE"))
+            config.setProperty(entityName + ".DAMAGE", "1.0");
+        config.get(entityName + ".DAMAGE").comment = displayName;
+        DamageMultiplier.put(entityName, Double.parseDouble(config.getProperty(entityName + ".DAMAGE")));
+        if (!config.containsKey(entityName + ".INVINCIBILITY"))
+            config.setProperty(entityName + ".INVINCIBILITY", "false");
+        config.get(entityName + ".INVINCIBILITY").comment = displayName;
+        Invincibility.put(entityName, Boolean.parseBoolean(config.getProperty(entityName + ".INVINCIBILITY")));
     }
 
     @Mod.PostInit
