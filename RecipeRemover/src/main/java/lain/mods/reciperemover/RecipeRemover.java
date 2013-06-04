@@ -33,21 +33,37 @@ public class RecipeRemover
         List list = CraftingManager.getInstance().getRecipeList();
         for (Object obj : list)
         {
-            if (obj instanceof IRecipe)
+            try
             {
-                ItemStack item = ((IRecipe) obj).getRecipeOutput();
-                if (item != null)
+                if (obj instanceof IRecipe)
                 {
-                    String n = Integer.toString(item.itemID);
-                    if (item.getHasSubtypes())
-                        n = n + ":" + Integer.toString(item.getItemDamage());
-                    n = "DisableRecipe." + n;
-                    if (!config.containsKey(n))
-                        config.setProperty(n, "false");
-                    config.get(n).comment = item.getDisplayName();
-                    if (Boolean.parseBoolean(config.getProperty(n)))
-                        toRemove.add(obj);
+                    ItemStack item = ((IRecipe) obj).getRecipeOutput();
+                    if (item != null)
+                    {
+                        String n = Integer.toString(item.itemID);
+                        if (item.getHasSubtypes())
+                            n = n + ":" + Integer.toString(item.getItemDamage());
+                        n = "DisableRecipe." + n;
+                        if (!config.containsKey(n))
+                            config.setProperty(n, "false");
+                        try
+                        {
+                            config.get(n).comment = item.getDisplayName();
+                        }
+                        catch (Throwable t)
+                        {
+                            System.err.println(" - unable to obtain itemDisplayName for " + n + " (" + t.toString() + ")");
+                            config.get(n).comment = null;
+                        }
+                        if (Boolean.parseBoolean(config.getProperty(n)))
+                            toRemove.add(obj);
+                    }
                 }
+            }
+            catch (Throwable t)
+            {
+                System.err.println(" - error occured: " + t.toString());
+                toRemove.remove(obj);
             }
         }
         config.save();
