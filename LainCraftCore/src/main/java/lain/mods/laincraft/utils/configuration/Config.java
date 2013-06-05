@@ -115,7 +115,7 @@ public class Config
         {
             buf = new BufferedReader(new UnicodeInputStreamReader(new FileInputStream(file), "UTF-8"));
             boolean flag = false;
-            String line = "";
+            String line = null;
             while ((line = buf.readLine()) != null)
             {
                 line = line.trim();
