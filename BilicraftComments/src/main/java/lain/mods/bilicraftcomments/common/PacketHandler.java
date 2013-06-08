@@ -17,4 +17,5 @@ public class PacketHandler implements IPacketHandler
         else if ("LC|BcC|D".equals(paramPacket250CustomPayload.channel))
             BilicraftComments.proxy.displayComment(paramINetworkManager, paramPacket250CustomPayload, paramPlayer);
     }
+
 }

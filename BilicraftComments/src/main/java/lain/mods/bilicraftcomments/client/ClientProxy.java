@@ -134,7 +134,7 @@ public class ClientProxy extends CommonProxy
         {
             if (!comments.isEmpty())
             {
-                Comment.preRender();
+                Comment.prepare();
                 for (Comment comment : comments)
                 {
                     if (comment.isDead(ticks))
@@ -146,7 +146,6 @@ public class ClientProxy extends CommonProxy
                     comment.update(ticks, event.partialTicks);
                     comment.draw();
                 }
-                Comment.postRender();
             }
         }
     }

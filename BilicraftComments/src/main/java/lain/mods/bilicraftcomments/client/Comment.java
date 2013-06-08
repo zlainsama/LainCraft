@@ -1,37 +1,58 @@
 package lain.mods.bilicraftcomments.client;
 
-import java.util.ArrayList;
-import java.util.List;
+import lain.mods.bilicraftcomments.BilicraftComments;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class Comment
 {
 
-    public static final List<CommentSlot> slots;
-    public static int numSlots = 18;
-
-    static
-    {
-        slots = new ArrayList(numSlots);
-        for (int i = 0; i < numSlots; i++)
-            slots.add(new CommentSlot(i));
-    }
+    public static final ClientProxy proxy = (ClientProxy) BilicraftComments.proxy;
 
     public static Minecraft client = null;
     public static FontRenderer renderer = null;
     public static ScaledResolution res = null;
     public static int width = 320;
     public static int height = 240;
+    public static int numSlots = 18;
 
-    public static void postRender()
+    public static boolean isSlotOccupied(int slot, int mode, Comment exclusion, int stress, long ticks)
     {
+        for (Comment c : proxy.comments)
+        {
+            if (c.slot != slot || c.mode != mode || c == exclusion)
+                continue;
+            switch (mode)
+            {
+                case 0:
+                    if (c.x + (c.textWidth() >> stress) + 2 > width)
+                        return true;
+                    break;
+                case 1:
+                    if (c.lifespan <= 0 || (ticks < c.ticksCreated + ((c.lifespan + c.expandedLife) >> stress)))
+                        return true;
+                    break;
+                case 2:
+                    if (c.lifespan <= 0 || (ticks < c.ticksCreated + ((c.lifespan + c.expandedLife) >> stress)))
+                        return true;
+                    break;
+                case 3:
+                    int w = c.textWidth();
+                    if (c.x + (w - w >> stress) < 2)
+                        return true;
+                    break;
+            }
+        }
+        return false;
     }
 
-    public static void preRender()
+    public static void prepare()
     {
         client = FMLClientHandler.instance().getClient();
         renderer = client.fontRenderer;
@@ -39,18 +60,11 @@ public class Comment
         width = res.getScaledWidth();
         height = res.getScaledHeight();
         numSlots = (int) ((float) (height - 60) / (float) (renderer.FONT_HEIGHT + 1));
-        if (slots.size() < numSlots)
-        {
-            int n = numSlots - slots.size();
-            for (int i = 0; i < n; i++)
-                slots.add(new CommentSlot(slots.size()));
-        }
     }
 
     public final int mode;
     public final String text;
     public final int lifespan;
-
     public final long ticksCreated;
 
     public int slot = -1;
@@ -73,73 +87,74 @@ public class Comment
     {
         if (slot == -1)
         {
-            CommentSlot s = null;
-            boolean f = false;
+            int s = 0;
             switch (mode)
             {
                 case 0: // Normal
-                    for (int i = 0; i < numSlots; i++)
+                    do
                     {
-                        s = slots.get(i);
-                        if (s != null && !s.isOccupied(ticks, mode, f))
+                        for (int i = 0; i < numSlots; i++)
+                        {
+                            if (!isSlotOccupied(i, mode, this, s, ticks))
+                            {
+                                slot = i;
+                                break;
+                            }
+                        }
+                        if (slot != -1)
                             break;
                     }
-                    f = true;
-                    for (int i = 0; i < numSlots; i++)
-                    {
-                        s = slots.get(i);
-                        if (s != null && !s.isOccupied(ticks, mode, f))
-                            break;
-                    }
+                    while (s++ < 3);
                     break;
                 case 1: // Top
-                    for (int i = 0; i < numSlots; i++)
+                    do
                     {
-                        s = slots.get(i);
-                        if (s != null && !s.isOccupied(ticks, mode, f))
+                        for (int i = 0; i < numSlots; i++)
+                        {
+                            if (!isSlotOccupied(i, mode, this, s, ticks))
+                            {
+                                slot = i;
+                                break;
+                            }
+                        }
+                        if (slot != -1)
                             break;
                     }
-                    f = true;
-                    for (int i = 0; i < numSlots; i++)
-                    {
-                        s = slots.get(i);
-                        if (s != null && !s.isOccupied(ticks, mode, f))
-                            break;
-                    }
+                    while (s++ < 3);
                     break;
                 case 2: // Bottom
-                    for (int i = numSlots - 1; i >= 0; i--)
+                    do
                     {
-                        s = slots.get(i);
-                        if (s != null && !s.isOccupied(ticks, mode, f))
+                        for (int i = numSlots - 1; i >= 0; i--)
+                        {
+                            if (!isSlotOccupied(i, mode, this, s, ticks))
+                            {
+                                slot = i;
+                                break;
+                            }
+                        }
+                        if (slot != -1)
                             break;
                     }
-                    f = true;
-                    for (int i = numSlots - 1; i >= 0; i--)
-                    {
-                        s = slots.get(i);
-                        if (s != null && !s.isOccupied(ticks, mode, f))
-                            break;
-                    }
+                    while (s++ < 3);
                     break;
                 case 3: // Backward
-                    for (int i = 0; i < numSlots; i++)
+                    do
                     {
-                        s = slots.get(i);
-                        if (s != null && !s.isOccupied(ticks, mode, f))
+                        for (int i = 0; i < numSlots; i++)
+                        {
+                            if (!isSlotOccupied(i, mode, this, s, ticks))
+                            {
+                                slot = i;
+                                break;
+                            }
+                        }
+                        if (slot != -1)
                             break;
                     }
-                    f = true;
-                    for (int i = 0; i < numSlots; i++)
-                    {
-                        s = slots.get(i);
-                        if (s != null && !s.isOccupied(ticks, mode, f))
-                            break;
-                    }
+                    while (s++ < 3);
                     break;
             }
-            if (s != null && s.set(ticks, mode, f))
-                slot = s.slotNumber;
         }
         if (slot == -1)
             expandedLife = Math.max(0, (int) (ticks - ticksCreated));
@@ -162,12 +177,18 @@ public class Comment
 
     public void onAdd()
     {
-        assignSlot(ticksCreated);
+        prepare();
+        update(ticksCreated, 0F);
     }
 
     public void onRemove()
     {
         slot = -1;
+    }
+
+    public int textWidth()
+    {
+        return renderer.getStringWidth(text);
     }
 
     public void update(long ticks, float partialTicks)
@@ -178,7 +199,7 @@ public class Comment
         {
             float f1 = Math.min(((float) (ticks - ticksCreated) + partialTicks) / (float) (lifespan + expandedLife), 1.0F);
             float f2;
-            int w = renderer.getStringWidth(text);
+            int w = textWidth();
             switch (mode)
             {
                 case 0:
