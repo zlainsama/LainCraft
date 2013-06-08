@@ -12,7 +12,7 @@ public class Comment
 {
 
     public static final List<CommentSlot> slots;
-    public static final int numSlots = 20;
+    public static int numSlots = 18;
 
     static
     {
@@ -38,6 +38,13 @@ public class Comment
         res = new ScaledResolution(client.gameSettings, client.displayWidth, client.displayHeight);
         width = res.getScaledWidth();
         height = res.getScaledHeight();
+        numSlots = (int) ((float) (height - 60) / (float) (renderer.FONT_HEIGHT + 1));
+        if (slots.size() < numSlots)
+        {
+            int n = numSlots - slots.size();
+            for (int i = 0; i < n; i++)
+                slots.add(new CommentSlot(slots.size()));
+        }
     }
 
     public final int mode;
@@ -51,10 +58,8 @@ public class Comment
 
     public int x;
     public int y;
-    public int color;
-    public boolean shadow;
-
-    public static String debug = "";
+    public int color; // unused
+    public boolean shadow; // unused
 
     public Comment(int mode, String text, int lifespan, long ticks)
     {
@@ -142,10 +147,9 @@ public class Comment
 
     public void draw()
     {
-        renderer.drawString(debug, 0, 0, 0xFFFFFF, true);
         GL11.glPushMatrix();
         GL11.glTranslatef((float) x, (float) y, 0.0F);
-        renderer.drawString(text, 0, 0, color, shadow);
+        renderer.drawString(text, 0, 0, 0xFFFFFF, true);
         GL11.glPopMatrix();
     }
 
@@ -166,11 +170,6 @@ public class Comment
         slot = -1;
     }
 
-    public int textWidth()
-    {
-        return renderer.getStringWidth(text);
-    }
-
     public void update(long ticks, float partialTicks)
     {
         if (slot == -1)
@@ -179,7 +178,7 @@ public class Comment
         {
             float f1 = Math.min(((float) (ticks - ticksCreated) + partialTicks) / (float) (lifespan + expandedLife), 1.0F);
             float f2;
-            int w = textWidth();
+            int w = renderer.getStringWidth(text);
             switch (mode)
             {
                 case 0:
@@ -188,17 +187,14 @@ public class Comment
                     break;
                 case 1:
                 case 2:
-                    x = (width - w) / 2;
+                    x = (width - w) >> 1;
                     break;
                 case 3:
                     f2 = f1;
                     x = (int) (f2 * (width + w)) - w;
                     break;
             }
-            y = (slot + 1) * (renderer.FONT_HEIGHT + 1);
-            color = 0xFFFFFF;
-            shadow = true;
-            debug = String.format("%d %d %f %d %d %d", width, height, f1, x, y, slot);
+            y = 2 + slot * (renderer.FONT_HEIGHT + 1);
         }
     }
 

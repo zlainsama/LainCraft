@@ -8,12 +8,18 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lain.mods.bilicraftcomments.common.CommonProxy;
 import net.minecraft.network.INetworkManager;
+import net.minecraft.network.NetLoginHandler;
+import net.minecraft.network.packet.NetHandler;
+import net.minecraft.network.packet.Packet1Login;
 import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
+import cpw.mods.fml.common.network.IConnectionHandler;
+import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -85,12 +91,46 @@ public class ClientProxy extends CommonProxy
             {
             }
         }, Side.CLIENT);
+        NetworkRegistry.instance().registerConnectionHandler(new IConnectionHandler()
+        {
+            @Override
+            public void clientLoggedIn(NetHandler arg0, INetworkManager arg1, Packet1Login arg2)
+            {
+                comments.clear();
+            }
+
+            @Override
+            public void connectionClosed(INetworkManager arg0)
+            {
+            }
+
+            @Override
+            public void connectionOpened(NetHandler arg0, MinecraftServer arg1, INetworkManager arg2)
+            {
+            }
+
+            @Override
+            public void connectionOpened(NetHandler arg0, String arg1, int arg2, INetworkManager arg3)
+            {
+            }
+
+            @Override
+            public String connectionReceived(NetLoginHandler arg0, INetworkManager arg1)
+            {
+                return null;
+            }
+
+            @Override
+            public void playerLoggedIn(Player arg0, NetHandler arg1, INetworkManager arg2)
+            {
+            }
+        });
     }
 
     @ForgeSubscribe
     public void onRenderOverlayPost(RenderGameOverlayEvent.Post event)
     {
-        if (event.type == RenderGameOverlayEvent.ElementType.ALL) // PS: forge 721 doesn't send this, u need at least forge 722
+        if (event.type == RenderGameOverlayEvent.ElementType.ALL) // PS: forge 721 doesn't send this, you need at least forge 722
         {
             if (!comments.isEmpty())
             {
