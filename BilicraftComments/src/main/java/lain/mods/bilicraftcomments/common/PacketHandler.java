@@ -1,7 +1,6 @@
 package lain.mods.bilicraftcomments.common;
 
 import lain.mods.bilicraftcomments.BilicraftComments;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import cpw.mods.fml.common.network.IPacketHandler;
@@ -13,8 +12,6 @@ public class PacketHandler implements IPacketHandler
     @Override
     public void onPacketData(INetworkManager paramINetworkManager, Packet250CustomPayload paramPacket250CustomPayload, Player paramPlayer)
     {
-        if (paramPlayer instanceof EntityPlayerSP)
-            ((EntityPlayerSP) paramPlayer).addChatMessage("Packet Received: " + paramPacket250CustomPayload.channel + " " + paramPacket250CustomPayload.length);
         if ("LC|BcC|R".equals(paramPacket250CustomPayload.channel))
             BilicraftComments.proxy.handleCommentRequest(paramINetworkManager, paramPacket250CustomPayload, paramPlayer);
         else if ("LC|BcC|D".equals(paramPacket250CustomPayload.channel))

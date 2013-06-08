@@ -19,13 +19,13 @@ public class CommentSlot
         switch (mode)
         {
             case 0:
-                return marker.checkTimeIfValid(ticks, flag ? 5L : 20L, false);
+                return !marker.checkTimeIfValid(ticks, flag ? 10L : 40L, false);
             case 1:
-                return marker.checkTimeIfValid(ticks, flag ? 5L : 20L, false);
+                return !marker.checkTimeIfValid(ticks, flag ? 10L : 40L, false);
             case 2:
-                return marker.checkTimeIfValid(ticks, flag ? 5L : 20L, false);
+                return !marker.checkTimeIfValid(ticks, flag ? 10L : 40L, false);
             case 3:
-                return marker.checkTimeIfValid(ticks, flag ? 1L : 5L, false);
+                return !marker.checkTimeIfValid(ticks, flag ? 2L : 10L, false);
         }
         return true;
     }

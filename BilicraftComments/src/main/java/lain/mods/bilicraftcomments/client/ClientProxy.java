@@ -90,21 +90,24 @@ public class ClientProxy extends CommonProxy
     @ForgeSubscribe
     public void onRenderOverlayPost(RenderGameOverlayEvent.Post event)
     {
-        if (event.type == RenderGameOverlayEvent.ElementType.ALL)
+        if (event.type == RenderGameOverlayEvent.ElementType.ALL) // PS: forge 721 doesn't send this, u need at least forge 722
         {
-            Comment.preRender();
-            for (Comment comment : comments)
+            if (!comments.isEmpty())
             {
-                if (comment.isDead(ticks))
+                Comment.preRender();
+                for (Comment comment : comments)
                 {
-                    comment.onRemove();
-                    comments.remove(comment);
-                    continue;
+                    if (comment.isDead(ticks))
+                    {
+                        comment.onRemove();
+                        comments.remove(comment);
+                        continue;
+                    }
+                    comment.update(ticks, event.partialTicks);
+                    comment.draw();
                 }
-                comment.update(ticks, event.partialTicks);
-                comment.draw();
+                Comment.postRender();
             }
-            Comment.postRender();
         }
     }
 

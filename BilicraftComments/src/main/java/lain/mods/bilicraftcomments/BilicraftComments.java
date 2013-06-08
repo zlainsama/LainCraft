@@ -44,6 +44,37 @@ public class BilicraftComments
         proxy.load();
     }
 
+    public static Packet250CustomPayload createPacket(String channel, int mode, int lifespan, String text)
+    {
+        DataOutputStream dos = null;
+        try
+        {
+            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            dos = new DataOutputStream(buf);
+            dos.writeShort(mode);
+            dos.writeShort(lifespan);
+            dos.writeUTF(text);
+            dos.flush();
+            return new Packet250CustomPayload(channel, buf.toByteArray());
+        }
+        catch (IOException e)
+        {
+            System.err.println("error creating packet: " + e.toString());
+            return null;
+        }
+        finally
+        {
+            if (dos != null)
+                try
+                {
+                    dos.close();
+                }
+                catch (IOException ignored)
+                {
+                }
+        }
+    }
+
     @Mod.ServerStarting
     public void onServerStarting(FMLServerStartingEvent event)
     {
@@ -53,38 +84,16 @@ public class BilicraftComments
             @Override
             public String getCommandName()
             {
-                return "bbc_test";
+                return "bcc_test";
             }
 
             @Override
             public void processCommand(ICommandSender arg0, String[] arg1)
             {
-                DataOutputStream dos = null;
-                try
-                {
-                    ByteArrayOutputStream buf = new ByteArrayOutputStream();
-                    dos = new DataOutputStream(buf);
-                    dos.writeShort(0);
-                    dos.writeShort(200);
-                    dos.writeUTF("Test Comment Text");
-                    dos.flush();
-                    getCommandSenderAsPlayer(arg0).playerNetServerHandler.sendPacketToPlayer(new Packet250CustomPayload("LC|BcC|D", buf.toByteArray()));
-                }
-                catch (IOException e)
-                {
-                    System.err.println("error creating display comment packet: " + e.toString());
-                }
-                finally
-                {
-                    if (dos != null)
-                        try
-                        {
-                            dos.close();
-                        }
-                        catch (IOException ignored)
-                        {
-                        }
-                }
+                getCommandSenderAsPlayer(arg0).playerNetServerHandler.sendPacketToPlayer(createPacket("LC|BcC|R", 0, 200, "Test Comment Text mode 0"));
+                getCommandSenderAsPlayer(arg0).playerNetServerHandler.sendPacketToPlayer(createPacket("LC|BcC|R", 1, 200, "Test Comment Text mode 1"));
+                getCommandSenderAsPlayer(arg0).playerNetServerHandler.sendPacketToPlayer(createPacket("LC|BcC|R", 2, 200, "Test Comment Text mode 2"));
+                getCommandSenderAsPlayer(arg0).playerNetServerHandler.sendPacketToPlayer(createPacket("LC|BcC|R", 3, 200, "Test Comment Text mode 3"));
             }
 
         });
