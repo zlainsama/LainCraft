@@ -8,10 +8,16 @@ import lain.mods.bilicraftcomments.common.CommonProxy;
 import lain.mods.bilicraftcomments.common.PacketHandler;
 import lain.mods.bilicraftcomments.common.Settings;
 import lain.mods.laincraft.core.SharedConstants;
+import lain.mods.laincraft.utils.Translator;
 import lain.mods.laincraft.utils.configuration.Config;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.PlayerNotFoundException;
+import net.minecraft.command.PlayerSelector;
+import net.minecraft.command.WrongUsageException;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.packet.Packet250CustomPayload;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -29,19 +35,9 @@ public class BilicraftComments
 
     public static Config config;
 
-    @Mod.PreInit
-    public void init(FMLPreInitializationEvent event)
+    public static Packet250CustomPayload createDisplayPacket(int mode, int lifespan, String text)
     {
-        config = new Config(new File(SharedConstants.getLainCraftDirFile(), "BilicraftComments.cfg"), "BilicraftComments");
-        config.register(Settings.class, null);
-        config.load();
-        config.save();
-    }
-
-    @Mod.Init
-    public void load(FMLInitializationEvent event)
-    {
-        proxy.load();
+        return createPacket("LC|BcC|D", mode, lifespan, text);
     }
 
     public static Packet250CustomPayload createPacket(String channel, int mode, int lifespan, String text)
@@ -57,7 +53,7 @@ public class BilicraftComments
             dos.flush();
             return new Packet250CustomPayload(channel, buf.toByteArray());
         }
-        catch (IOException e)
+        catch (Exception e)
         {
             System.err.println("error creating packet: " + e.toString());
             return null;
@@ -75,6 +71,30 @@ public class BilicraftComments
         }
     }
 
+    public static Packet250CustomPayload createRequestPacket(int mode, int lifespan, String text)
+    {
+        return createPacket("LC|BcC|R", mode, lifespan, text);
+    }
+
+    @Mod.PreInit
+    public void init(FMLPreInitializationEvent event)
+    {
+        config = new Config(new File(SharedConstants.getLainCraftDirFile(), "BilicraftComments.cfg"), "BilicraftComments");
+        config.register(Settings.class, null);
+        config.load();
+        config.save();
+        Translator a = new Translator();
+        a.k("commands.bcc_broadcast.usage");
+        a.a("/bcc_broadcast <player> [mode] [lifespan] <text ... >");
+        a.a("/bcc_broadcast <玩家> [模式] [寿命] <文本 ... >", "zh_CN");
+    }
+
+    @Mod.Init
+    public void load(FMLInitializationEvent event)
+    {
+        proxy.load();
+    }
+
     @Mod.ServerStarting
     public void onServerStarting(FMLServerStartingEvent event)
     {
@@ -84,16 +104,50 @@ public class BilicraftComments
             @Override
             public String getCommandName()
             {
-                return "bcc_test";
+                return "bcc_broadcast";
+            }
+
+            @Override
+            public String getCommandUsage(ICommandSender arg0)
+            {
+                return arg0.translateString("commands.bcc_broadcast.usage", new Object[0]);
+            }
+
+            @Override
+            public int getRequiredPermissionLevel()
+            {
+                return 2;
             }
 
             @Override
             public void processCommand(ICommandSender arg0, String[] arg1)
             {
-                getCommandSenderAsPlayer(arg0).playerNetServerHandler.sendPacketToPlayer(createPacket("LC|BcC|R", 0, 200, "Test Comment Text mode 0"));
-                getCommandSenderAsPlayer(arg0).playerNetServerHandler.sendPacketToPlayer(createPacket("LC|BcC|R", 1, 200, "Test Comment Text mode 1"));
-                getCommandSenderAsPlayer(arg0).playerNetServerHandler.sendPacketToPlayer(createPacket("LC|BcC|R", 2, 200, "Test Comment Text mode 2"));
-                getCommandSenderAsPlayer(arg0).playerNetServerHandler.sendPacketToPlayer(createPacket("LC|BcC|R", 3, 200, "Test Comment Text mode 3"));
+                if (arg1.length >= 4)
+                {
+                    EntityPlayerMP[] players = PlayerSelector.matchPlayers(arg0, arg1[0]);
+                    if (players == null)
+                    {
+                        players = new EntityPlayerMP[] { FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(arg1[0]) };
+                        if (players[0] == null)
+                            throw new PlayerNotFoundException();
+                    }
+                    int mode = parseIntBounded(arg0, arg1[1], 0, 3);
+                    int lifespan = parseIntWithMin(arg0, arg1[2], -1);
+                    StringBuilder buf = new StringBuilder();
+                    for (int i = 3; i < arg1.length; i++)
+                    {
+                        if (i > 3)
+                            buf.append(" ");
+                        buf.append(arg1[i]);
+                    }
+                    Packet250CustomPayload packet = createDisplayPacket(mode, lifespan, buf.toString());
+                    for (EntityPlayerMP player : players)
+                        player.playerNetServerHandler.sendPacketToPlayer(packet);
+                }
+                else
+                {
+                    throw new WrongUsageException("commands.bcc_broadcast.usage", new Object[0]);
+                }
             }
 
         });
