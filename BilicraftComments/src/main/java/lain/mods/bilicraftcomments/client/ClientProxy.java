@@ -7,6 +7,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lain.mods.bilicraftcomments.common.CommonProxy;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.NetLoginHandler;
 import net.minecraft.network.packet.NetHandler;
@@ -16,6 +18,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.client.registry.KeyBindingRegistry;
+import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.network.IConnectionHandler;
@@ -27,6 +32,7 @@ import cpw.mods.fml.relauncher.Side;
 public class ClientProxy extends CommonProxy
 {
 
+    KeyBinding keyCommentGui = new KeyBinding("Open Comment Gui", 0x17);
     List<Comment> comments = new CopyOnWriteArrayList();
     long ticks = 0L;
 
@@ -123,6 +129,36 @@ public class ClientProxy extends CommonProxy
             @Override
             public void playerLoggedIn(Player arg0, NetHandler arg1, INetworkManager arg2)
             {
+            }
+        });
+        KeyBindingRegistry.registerKeyBinding(new KeyHandler(new KeyBinding[] { keyCommentGui }, new boolean[] { false })
+        {
+            @Override
+            public String getLabel()
+            {
+                return "KeyBinding";
+            }
+
+            @Override
+            public void keyDown(EnumSet<TickType> paramEnumSet, KeyBinding paramKeyBinding, boolean paramBoolean1, boolean paramBoolean2)
+            {
+                if (paramKeyBinding == keyCommentGui && paramBoolean1)
+                {
+                    Minecraft client = FMLClientHandler.instance().getClient();
+                    if (client != null && client.currentScreen == null)
+                        client.displayGuiScreen(new GuiComment());
+                }
+            }
+
+            @Override
+            public void keyUp(EnumSet<TickType> paramEnumSet, KeyBinding paramKeyBinding, boolean paramBoolean)
+            {
+            }
+
+            @Override
+            public EnumSet<TickType> ticks()
+            {
+                return EnumSet.of(TickType.CLIENT);
             }
         });
     }
