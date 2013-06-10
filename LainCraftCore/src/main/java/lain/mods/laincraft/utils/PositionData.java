@@ -90,16 +90,16 @@ public class PositionData
 
     public void teleportEntity(Entity par1, boolean checkCollision, boolean keepVelocity)
     {
-        if (dimension != -999 && dimension != par1.dimension)
-            par1.travelToDimension(dimension);
         double var1 = y;
         double var2 = par1.motionX;
         double var3 = par1.motionY;
         double var4 = par1.motionZ;
-        par1.setPositionAndRotation(x, var1, z, yaw, pitch);
+        Teleporter.teleportEntity(par1, dimension, x, y, z, yaw, pitch);
         if (checkCollision)
+        {
             while (!par1.worldObj.getCollidingBoundingBoxes(par1, par1.boundingBox).isEmpty())
                 par1.setPosition(x, ++var1, z);
+        }
         if (!keepVelocity)
         {
             par1.fallDistance = 0.0F;
