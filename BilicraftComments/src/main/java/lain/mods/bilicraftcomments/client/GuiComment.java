@@ -50,6 +50,23 @@ public class GuiComment extends GuiScreen
         }
     }
 
+    public static enum LifespanControlArea
+    {
+        c0(20, 187, 106, 14, 9), // ++
+        c1(2, 203, 106, 9, 9), // +
+        c2(-20, 214, 106, 14, 9), // --
+        c3(-2, 230, 106, 9, 9); // -
+
+        public final int m;
+        public final Rect rect;
+
+        private LifespanControlArea(int modifier, int x, int y, int w, int h)
+        {
+            m = modifier;
+            rect = new Rect(x, y, w, h);
+        }
+    }
+
     public static enum ModeArea
     {
         m0(0, 8, 47, 61, 46), // 0
@@ -165,6 +182,14 @@ public class GuiComment extends GuiScreen
                     break;
                 }
             }
+            for (LifespanControlArea area : LifespanControlArea.values())
+            {
+                if (area.rect.isMouseHovering(x, y))
+                {
+                    drawRectTexture(areaSettings.x + area.rect.x, areaSettings.y + area.rect.y, area.rect.w, area.rect.h, area.rect.x, 154 + area.rect.y, zLevel);
+                    break;
+                }
+            }
             drawString(mc.fontRenderer, String.format("%.1f", (float) lifespan / 20F), areaSettings.x + 33, areaSettings.y + 105, 0xFFFFFF);
         }
         super.drawScreen(par1, par2, par3);
@@ -251,6 +276,14 @@ public class GuiComment extends GuiScreen
                 if (area.rect.isMouseHovering(x, y))
                 {
                     mode = area.id;
+                    break;
+                }
+            }
+            for (LifespanControlArea area : LifespanControlArea.values())
+            {
+                if (area.rect.isMouseHovering(x, y))
+                {
+                    lifespan += area.m;
                     break;
                 }
             }
