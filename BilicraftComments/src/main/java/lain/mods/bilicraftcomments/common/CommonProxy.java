@@ -18,6 +18,7 @@ public class CommonProxy
 
     Translator msgInternalError = new Translator("BcC_InternalError");
     Translator msgNotInWhitelist = new Translator("BcC_NotInWhitelist");
+    Translator msgInBlacklist = new Translator("BcC_InBlacklist");
     Translator msgTooFastToComment = new Translator("BcC_TooFastToComment");
     Translator msgInvalidArguments = new Translator("BcC_InvalidArguments");
 
@@ -36,9 +37,14 @@ public class CommonProxy
                 msgInternalError.s(plr, EnumChatFormatting.DARK_RED.toString());
                 return;
             }
-            if (!Whitelist.contains(plr.username))
+            if (Settings.whitelistMode && !Whitelist.contains(plr.username))
             {
                 msgNotInWhitelist.s(plr, EnumChatFormatting.DARK_RED.toString());
+                return;
+            }
+            if (Blacklist.contains(plr.username))
+            {
+                msgInBlacklist.s(plr, EnumChatFormatting.DARK_RED.toString());
                 return;
             }
             if (!prop.timer.checkTimeIfValid(plr.worldObj.getTotalWorldTime(), Settings.commentInterval, false))
@@ -97,15 +103,17 @@ public class CommonProxy
     public void load()
     {
         Whitelist.load();
+        Blacklist.load();
         ExtendedPlayerProperties.load();
         msgInternalError.a("There is an internal error occurred.");
         msgNotInWhitelist.a("You need to be in comment whitelist to send comment.");
+        msgInBlacklist.a("You are in comment blacklist, so you can't send comment.");
         msgTooFastToComment.a("You're fast! Aren't you? Take a break please.");
         msgInvalidArguments.a("Some of your arguments are not allowed.");
         msgInternalError.a("发生了一个内部错误。", "zh_CN");
         msgNotInWhitelist.a("你需要在评论白名单中来发送评论。", "zh_CN");
+        msgInBlacklist.a("你在评论黑名单中，所以你不能发送评论。", "zh_CN");
         msgTooFastToComment.a("你真快！不是么？请休息一下。", "zh_CN");
         msgInvalidArguments.a("你的一些参数是不被允许的。", "zh_CN");
     }
-
 }

@@ -19,6 +19,9 @@ public class Settings
     @Config.Property(defaultValue = "100")
     public static int commentInterval;
 
+    @Config.Property(defaultValue = "true")
+    public static boolean whitelistMode;
+
     private static final Set<Integer> modes = new HashSet();
 
     public static boolean isModeAllowed(int mode)

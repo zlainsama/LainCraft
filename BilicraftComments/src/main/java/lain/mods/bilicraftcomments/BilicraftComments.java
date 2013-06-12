@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import lain.mods.bilicraftcomments.common.Blacklist;
 import lain.mods.bilicraftcomments.common.CommonProxy;
 import lain.mods.bilicraftcomments.common.PacketHandler;
 import lain.mods.bilicraftcomments.common.Settings;
@@ -102,6 +103,18 @@ public class BilicraftComments
         a.k("commands.bcc_whitelist_remove.removed");
         a.a("'%1$s' removed from comment whitelist.");
         a.a("已将 '%1$s' 从评论白名单中移除.", "zh_CN");
+        a.k("commands.bcc_blacklist_add.usage");
+        a.a("/bcc_blacklist_add <username>");
+        a.a("/bcc_blacklist_add <用户名>", "zh_CN");
+        a.k("commands.bcc_blacklist_add.added");
+        a.a("'%1$s' added to comment blacklist.");
+        a.a("已添加 '%1$s' 到评论黑名单.", "zh_CN");
+        a.k("commands.bcc_blacklist_remove.usage");
+        a.a("/bcc_blacklist_remove <username>");
+        a.a("/bcc_blacklist_remove <用户名>", "zh_CN");
+        a.k("commands.bcc_blacklist_remove.removed");
+        a.a("'%1$s' removed from comment blacklist.");
+        a.a("已将 '%1$s' 从评论黑名单中移除.", "zh_CN");
     }
 
     @Mod.Init
@@ -185,6 +198,7 @@ public class BilicraftComments
                 Settings.update();
                 config.save();
                 Whitelist.load();
+                Blacklist.load();
             }
         });
         event.registerServerCommand(new CommandBase()
@@ -253,6 +267,74 @@ public class BilicraftComments
                 }
                 else
                     throw new WrongUsageException("commands.bcc_whitelist_remove.usage", new Object[0]);
+            }
+        });
+        event.registerServerCommand(new CommandBase()
+        {
+            @Override
+            public String getCommandName()
+            {
+                return "bcc_blacklist_add";
+            }
+
+            @Override
+            public String getCommandUsage(ICommandSender arg0)
+            {
+                return arg0.translateString("commands.bcc_blacklist_add.usage", new Object[0]);
+            }
+
+            @Override
+            public int getRequiredPermissionLevel()
+            {
+                return 3;
+            }
+
+            @Override
+            public void processCommand(ICommandSender arg0, String[] arg1)
+            {
+                if (arg1.length > 0)
+                {
+                    Blacklist.load();
+                    Blacklist.add(arg1[0]);
+                    Blacklist.save();
+                    arg0.sendChatToPlayer(arg0.translateString("commands.bcc_blacklist_add.added", arg1[0]));
+                }
+                else
+                    throw new WrongUsageException("commands.bcc_blacklist_add.usage", new Object[0]);
+            }
+        });
+        event.registerServerCommand(new CommandBase()
+        {
+            @Override
+            public String getCommandName()
+            {
+                return "bcc_blacklist_remove";
+            }
+
+            @Override
+            public String getCommandUsage(ICommandSender arg0)
+            {
+                return arg0.translateString("commands.bcc_blacklist_remove.usage", new Object[0]);
+            }
+
+            @Override
+            public int getRequiredPermissionLevel()
+            {
+                return 3;
+            }
+
+            @Override
+            public void processCommand(ICommandSender arg0, String[] arg1)
+            {
+                if (arg1.length > 0)
+                {
+                    Blacklist.load();
+                    Blacklist.remove(arg1[0]);
+                    Blacklist.save();
+                    arg0.sendChatToPlayer(arg0.translateString("commands.bcc_blacklist_remove.removed", arg1[0]));
+                }
+                else
+                    throw new WrongUsageException("commands.bcc_blacklist_remove.usage", new Object[0]);
             }
         });
     }
