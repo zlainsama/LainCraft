@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
+import lain.mods.laincraft.core.SharedConstants;
 import lain.mods.laincraft.utils.io.UnicodeInputStreamReader;
 import net.minecraft.util.StringUtils;
 
@@ -29,6 +30,21 @@ public class Whitelist
         if (instance != null)
             return instance.list.contains(StringUtils.stripControlCodes(username).toLowerCase());
         return false;
+    }
+
+    public static void load()
+    {
+        File f = new File(SharedConstants.getMinecraftDirFile(), "BcC_Whitelist.txt");
+        if (!f.exists())
+            try
+            {
+                f.createNewFile();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        Whitelist.load(f);
     }
 
     public static void load(File file)
@@ -70,6 +86,21 @@ public class Whitelist
     {
         if (instance != null)
             instance.list.remove(StringUtils.stripControlCodes(username).toLowerCase());
+    }
+
+    public static void save()
+    {
+        File f = new File(SharedConstants.getMinecraftDirFile(), "BcC_Whitelist.txt");
+        if (!f.exists())
+            try
+            {
+                f.createNewFile();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        Whitelist.save(f);
     }
 
     public static void save(File file)

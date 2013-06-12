@@ -7,6 +7,7 @@ import java.io.IOException;
 import lain.mods.bilicraftcomments.common.CommonProxy;
 import lain.mods.bilicraftcomments.common.PacketHandler;
 import lain.mods.bilicraftcomments.common.Settings;
+import lain.mods.bilicraftcomments.common.Whitelist;
 import lain.mods.laincraft.core.SharedConstants;
 import lain.mods.laincraft.utils.Translator;
 import lain.mods.laincraft.utils.configuration.Config;
@@ -82,11 +83,24 @@ public class BilicraftComments
         config = new Config(new File(SharedConstants.getLainCraftDirFile(), "BilicraftComments.cfg"), "BilicraftComments");
         config.register(Settings.class, null);
         config.load();
+        Settings.update();
         config.save();
         Translator a = new Translator();
         a.k("commands.bcc_broadcast.usage");
         a.a("/bcc_broadcast <player> [mode] [lifespan] <text ... >");
         a.a("/bcc_broadcast <玩家> [模式] [寿命] <文本 ... >", "zh_CN");
+        a.k("commands.bcc_whitelist_add.usage");
+        a.a("/bcc_whitelist_add <username>");
+        a.a("/bcc_whitelist_add <用户名>", "zh_CN");
+        a.k("commands.bcc_whitelist_add.added");
+        a.a("'%1$s' added to comment whitelist.");
+        a.a("已添加 '%1$s' 到评论白名单.", "zh_CN");
+        a.k("commands.bcc_whitelist_remove.usage");
+        a.a("/bcc_whitelist_remove <username>");
+        a.a("/bcc_whitelist_remove <用户名>", "zh_CN");
+        a.k("commands.bcc_whitelist_remove.removed");
+        a.a("'%1$s' removed from comment whitelist.");
+        a.a("已将 '%1$s' 从评论白名单中移除.", "zh_CN");
     }
 
     @Mod.Init
@@ -100,7 +114,6 @@ public class BilicraftComments
     {
         event.registerServerCommand(new CommandBase()
         {
-
             @Override
             public String getCommandName()
             {
@@ -149,7 +162,98 @@ public class BilicraftComments
                     throw new WrongUsageException("commands.bcc_broadcast.usage", new Object[0]);
                 }
             }
+        });
+        event.registerServerCommand(new CommandBase()
+        {
+            @Override
+            public String getCommandName()
+            {
+                return "bcc_reload";
+            }
 
+            @Override
+            public int getRequiredPermissionLevel()
+            {
+                return 3;
+            }
+
+            @Override
+            public void processCommand(ICommandSender arg0, String[] arg1)
+            {
+                config.load();
+                Settings.update();
+                config.save();
+                Whitelist.load();
+            }
+        });
+        event.registerServerCommand(new CommandBase()
+        {
+            @Override
+            public String getCommandName()
+            {
+                return "bcc_whitelist_add";
+            }
+
+            @Override
+            public String getCommandUsage(ICommandSender arg0)
+            {
+                return arg0.translateString("commands.bcc_whitelist_add.usage", new Object[0]);
+            }
+
+            @Override
+            public int getRequiredPermissionLevel()
+            {
+                return 3;
+            }
+
+            @Override
+            public void processCommand(ICommandSender arg0, String[] arg1)
+            {
+                if (arg1.length > 0)
+                {
+                    Whitelist.load();
+                    Whitelist.add(arg1[0]);
+                    Whitelist.save();
+                    arg0.sendChatToPlayer(arg0.translateString("commands.bcc_whitelist_add.added", arg1[0]));
+                }
+                else
+                    throw new WrongUsageException("commands.bcc_whitelist_add.usage", new Object[0]);
+            }
+        });
+        event.registerServerCommand(new CommandBase()
+        {
+            @Override
+            public String getCommandName()
+            {
+                return "bcc_whitelist_remove";
+            }
+
+            @Override
+            public String getCommandUsage(ICommandSender arg0)
+            {
+                return arg0.translateString("commands.bcc_whitelist_remove.usage", new Object[0]);
+            }
+
+            @Override
+            public int getRequiredPermissionLevel()
+            {
+                return 3;
+            }
+
+            @Override
+            public void processCommand(ICommandSender arg0, String[] arg1)
+            {
+                if (arg1.length > 0)
+                {
+                    Whitelist.load();
+                    Whitelist.remove(arg1[0]);
+                    Whitelist.save();
+                    arg0.sendChatToPlayer(arg0.translateString("commands.bcc_whitelist_remove.removed", arg1[0]));
+                }
+                else
+                    throw new WrongUsageException("commands.bcc_whitelist_remove.usage", new Object[0]);
+            }
         });
     }
+
 }

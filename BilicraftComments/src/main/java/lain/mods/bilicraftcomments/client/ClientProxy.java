@@ -15,6 +15,7 @@ import net.minecraft.network.packet.NetHandler;
 import net.minecraft.network.packet.Packet1Login;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.StringUtils;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
@@ -45,10 +46,13 @@ public class ClientProxy extends CommonProxy
             dis = new DataInputStream(new ByteArrayInputStream(packet.data));
             int mode = dis.readShort();
             int lifespan = dis.readShort();
-            String text = dis.readUTF();
-            Comment comment = new Comment(mode, text, lifespan, ticks);
-            comment.onAdd();
-            comments.add(comment);
+            String text = dis.readUTF().trim().replace("&", "\u00a7").replace("\u00a7\u00a7", "&");
+            if (!StringUtils.stripControlCodes(text).isEmpty())
+            {
+                Comment comment = new Comment(mode, text, lifespan, ticks);
+                comment.onAdd();
+                comments.add(comment);
+            }
         }
         catch (IOException e)
         {
