@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StringUtils;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.Player;
 
@@ -52,13 +53,13 @@ public class CommonProxy
                 int mode = dis.readShort();
                 int lifespan = dis.readShort();
                 String text = dis.readUTF();
-                if (!Settings.isModeAllowed(mode) || lifespan < Settings.minLifespan || lifespan > Settings.maxLifespan)
+                if (!Settings.isModeAllowed(mode) || lifespan < Settings.minLifespan || lifespan > Settings.maxLifespan || StringUtils.stripControlCodes(text.trim().replace("&", "\u00a7").replace("\u00a7\u00a7", "&")).isEmpty())
                 {
                     msgInvalidArguments.s(plr, EnumChatFormatting.DARK_RED.toString());
                     return;
                 }
                 prop.timer.markTime(plr.worldObj.getTotalWorldTime());
-                packet = BilicraftComments.createDisplayPacket(mode, lifespan, plr.username + ": " + text);
+                packet = BilicraftComments.createDisplayPacket(mode, lifespan, EnumChatFormatting.RESET + plr.getTranslatedEntityName() + " > " + text);
                 for (Object o : FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().playerEntityList)
                 {
                     if (o instanceof EntityPlayerMP)
