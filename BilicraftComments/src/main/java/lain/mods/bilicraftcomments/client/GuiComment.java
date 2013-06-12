@@ -4,7 +4,6 @@ import lain.mods.bilicraftcomments.BilicraftComments;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -17,28 +16,28 @@ public class GuiComment extends GuiScreen
 
     public static enum ControlCodeArea
     {
-        c0(EnumChatFormatting.BLACK.toString(), 11, 12, 16, 16), // 0
-        c1(EnumChatFormatting.DARK_BLUE.toString(), 26, 12, 16, 16), // 1
-        c2(EnumChatFormatting.DARK_GREEN.toString(), 41, 12, 16, 16), // 2
-        c3(EnumChatFormatting.DARK_AQUA.toString(), 56, 12, 16, 16), // 3
-        c4(EnumChatFormatting.DARK_RED.toString(), 71, 12, 16, 16), // 4
-        c5(EnumChatFormatting.DARK_PURPLE.toString(), 86, 12, 16, 16), // 5
-        c6(EnumChatFormatting.GOLD.toString(), 101, 12, 16, 16), // 6
-        c7(EnumChatFormatting.GRAY.toString(), 116, 12, 16, 16), // 7
-        c8(EnumChatFormatting.DARK_GRAY.toString(), 11, 27, 16, 16), // 8
-        c9(EnumChatFormatting.BLUE.toString(), 26, 27, 16, 16), // 9
-        ca(EnumChatFormatting.GREEN.toString(), 41, 27, 16, 16), // a
-        cb(EnumChatFormatting.AQUA.toString(), 56, 27, 16, 16), // b
-        cc(EnumChatFormatting.RED.toString(), 71, 27, 16, 16), // c
-        cd(EnumChatFormatting.LIGHT_PURPLE.toString(), 86, 27, 16, 16), // d
-        ce(EnumChatFormatting.YELLOW.toString(), 101, 27, 16, 16), // e
-        cf(EnumChatFormatting.WHITE.toString(), 116, 27, 16, 16), // f
+        c0("&0", 11, 12, 16, 16), // 0 - BLACK
+        c1("&1", 26, 12, 16, 16), // 1 - DARK_BLUE
+        c2("&2", 41, 12, 16, 16), // 2 - DARK_GREEN
+        c3("&3", 56, 12, 16, 16), // 3 - DARK_AQUA
+        c4("&4", 71, 12, 16, 16), // 4 - DARK_RED
+        c5("&5", 86, 12, 16, 16), // 5 - DARK_PURPLE
+        c6("&6", 101, 12, 16, 16), // 6 - GOLD
+        c7("&7", 116, 12, 16, 16), // 7 - GRAY
+        c8("&8", 11, 27, 16, 16), // 8 - DARK_GRAY
+        c9("&9", 26, 27, 16, 16), // 9 - BLUE
+        ca("&a", 41, 27, 16, 16), // a - GREEN
+        cb("&b", 56, 27, 16, 16), // b - AQUA
+        cc("&c", 71, 27, 16, 16), // c - RED
+        cd("&d", 86, 27, 16, 16), // d - LIGHT_PURPLE
+        ce("&e", 101, 27, 16, 16), // e - YELLOW
+        cf("&f", 116, 27, 16, 16), // f - WHITE
         // ck
-        cl(EnumChatFormatting.BOLD.toString(), 136, 22, 20, 21), // l
-        cm(EnumChatFormatting.STRIKETHROUGH.toString(), 202, 22, 20, 20), // m
-        cn(EnumChatFormatting.UNDERLINE.toString(), 183, 23, 15, 18), // n
-        co(EnumChatFormatting.ITALIC.toString(), 160, 22, 19, 20), // o
-        cr(EnumChatFormatting.RESET.toString(), 225, 21, 21, 22); // r
+        cl("&l", 136, 22, 20, 21), // l - BOLD
+        cm("&m", 202, 22, 20, 20), // m - STRIKETHROUGH
+        cn("&n", 183, 23, 15, 18), // n - UNDERLINE
+        co("&o", 160, 22, 19, 20), // o - ITALIC
+        cr("&r", 225, 21, 21, 22); // r - RESET
 
         public final String code;
         public final Rect rect;
@@ -218,7 +217,7 @@ public class GuiComment extends GuiScreen
         inputField.setMaxStringLength(100);
         inputField.setEnableBackgroundDrawing(false);
         inputField.setFocused(true);
-        inputField.setText("");
+        // inputField.setText("");
         inputField.setCanLoseFocus(false);
         areaSettingsButton = new Rect(width - 32, height - 44, 28, 28);
         areaSettings = new Rect(width - 258, height - 171, 254, 126);

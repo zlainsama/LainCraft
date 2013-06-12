@@ -35,6 +35,7 @@ public class BilicraftComments
     public static CommonProxy proxy;
 
     public static Config config;
+    public static IPermissionManager manager;
 
     public static Packet250CustomPayload createDisplayPacket(int mode, int lifespan, String text)
     {

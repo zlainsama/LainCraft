@@ -58,6 +58,16 @@ public class CommonProxy
                     msgInvalidArguments.s(plr, EnumChatFormatting.DARK_RED.toString());
                     return;
                 }
+                if (BilicraftComments.manager != null)
+                {
+                    if (!BilicraftComments.manager.hasPermission(plr.username, "BcC.commentMode." + mode))
+                    {
+                        msgInvalidArguments.s(plr, EnumChatFormatting.DARK_RED.toString());
+                        return;
+                    }
+                    if (!BilicraftComments.manager.hasPermission(plr.username, "BcC.colorComments"))
+                        text = StringUtils.stripControlCodes(text);
+                }
                 prop.timer.markTime(plr.worldObj.getTotalWorldTime());
                 packet = BilicraftComments.createDisplayPacket(mode, lifespan, EnumChatFormatting.RESET + plr.getTranslatedEntityName() + " > " + text);
                 for (Object o : FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().playerEntityList)
