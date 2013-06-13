@@ -95,12 +95,21 @@ public class Comment
                     {
                         for (int i = 0; i < numSlots; i++)
                         {
-                            if (!isSlotOccupied(i, mode, this, s, ticks))
+                            int j = (int) Math.round(Math.random() * (numSlots - 1));
+                            if (!isSlotOccupied(j, mode, this, s, ticks))
                             {
-                                slot = i;
+                                slot = j;
                                 break;
                             }
                         }
+                        // for (int i = 0; i < numSlots; i++)
+                        // {
+                        // if (!isSlotOccupied(i, mode, this, s, ticks))
+                        // {
+                        // slot = i;
+                        // break;
+                        // }
+                        // }
                         if (slot != -1)
                             break;
                     }
@@ -143,12 +152,21 @@ public class Comment
                     {
                         for (int i = 0; i < numSlots; i++)
                         {
-                            if (!isSlotOccupied(i, mode, this, s, ticks))
+                            int j = (int) Math.round(Math.random() * (numSlots - 1));
+                            if (!isSlotOccupied(j, mode, this, s, ticks))
                             {
-                                slot = i;
+                                slot = j;
                                 break;
                             }
                         }
+                        // for (int i = 0; i < numSlots; i++)
+                        // {
+                        // if (!isSlotOccupied(i, mode, this, s, ticks))
+                        // {
+                        // slot = i;
+                        // break;
+                        // }
+                        // }
                         if (slot != -1)
                             break;
                     }
@@ -184,6 +202,13 @@ public class Comment
     public void onRemove()
     {
         slot = -1;
+        try
+        {
+            client.ingameGUI.getChatGUI().addTranslatedMessage(text, new Object[0]);
+        }
+        catch (Throwable ignored)
+        {
+        }
     }
 
     public int textWidth()
