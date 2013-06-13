@@ -46,7 +46,7 @@ public class ClientProxy extends CommonProxy
             dis = new DataInputStream(new ByteArrayInputStream(packet.data));
             int mode = dis.readShort();
             int lifespan = dis.readShort();
-            String text = dis.readUTF().trim().replace("&", "\u00a7").replace("\u00a7\u00a7", "&");
+            String text = dis.readUTF();
             if (!StringUtils.stripControlCodes(text).isEmpty())
             {
                 Comment comment = new Comment(mode, text, lifespan, ticks);

@@ -59,8 +59,8 @@ public class CommonProxy
                 dis = new DataInputStream(new ByteArrayInputStream(packet.data));
                 int mode = dis.readShort();
                 int lifespan = dis.readShort();
-                String text = dis.readUTF();
-                if (!Settings.isModeAllowed(mode) || lifespan < Settings.minLifespan || lifespan > Settings.maxLifespan || StringUtils.stripControlCodes(text.trim().replace("&", "\u00a7").replace("\u00a7\u00a7", "&")).isEmpty())
+                String text = dis.readUTF().trim().replace("&", "\u00a7").replace("\u00a7\u00a7", "&");
+                if (!Settings.isModeAllowed(mode) || lifespan < Settings.minLifespan || lifespan > Settings.maxLifespan || StringUtils.stripControlCodes(text).isEmpty())
                 {
                     msgInvalidArguments.s(plr, EnumChatFormatting.DARK_RED.toString());
                     return;

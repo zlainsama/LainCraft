@@ -216,7 +216,7 @@ public class BilicraftComments
                             buf.append(" ");
                         buf.append(arg1[i]);
                     }
-                    String text = buf.toString();
+                    String text = buf.toString().trim().replace("&", "\u00a7").replace("\u00a7\u00a7", "&");
                     BilicraftComments.logger.log(LevelComment.comment, String.format("[CONSOLE](target:%s) [mode:%d] [lifespan:%d] %s", arg1[0], mode, lifespan, text));
                     Packet250CustomPayload packet = createDisplayPacket(mode, lifespan, text);
                     for (EntityPlayerMP player : players)
