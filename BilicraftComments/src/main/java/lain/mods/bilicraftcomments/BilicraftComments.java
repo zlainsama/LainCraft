@@ -4,6 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import lain.mods.bilicraftcomments.common.Blacklist;
 import lain.mods.bilicraftcomments.common.CommonProxy;
 import lain.mods.bilicraftcomments.common.PacketHandler;
@@ -37,6 +43,9 @@ public class BilicraftComments
 
     public static Config config;
     public static IPermissionManager manager;
+    public static Logger logger;
+
+    public static final int logLimit = 33554432;
 
     public static Packet250CustomPayload createDisplayPacket(int mode, int lifespan, String text)
     {
@@ -87,6 +96,46 @@ public class BilicraftComments
         config.load();
         Settings.update();
         config.save();
+        logger = event.getModLog();
+        try
+        {
+            File logPath = new File(SharedConstants.getMinecraftDirFile(), "BcC_CommentLog_%g.log");
+            logger.addHandler(new FileHandler(logPath.getPath(), logLimit, 4, true)
+            {
+                {
+                    setLevel(Level.ALL);
+                    setFormatter(new Formatter()
+                    {
+                        String LINE_SEPARATOR = System.getProperty("line.separator");
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                        @Override
+                        public String format(LogRecord record)
+                        {
+                            if (record.getLevel() == LevelComment.comment)
+                            {
+                                StringBuilder msg = new StringBuilder();
+                                msg.append(dateFormat.format(Long.valueOf(record.getMillis())));
+                                msg.append(" ");
+                                msg.append(record.getMessage());
+                                msg.append(LINE_SEPARATOR);
+                                return msg.toString();
+                            }
+                            return "";
+                        }
+                    });
+                }
+
+                @Override
+                public synchronized void close() throws SecurityException
+                {
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         Translator a = new Translator();
         a.k("commands.bcc_broadcast.usage");
         a.a("/bcc_broadcast <player> [mode] [lifespan] <text ... >");
@@ -167,7 +216,9 @@ public class BilicraftComments
                             buf.append(" ");
                         buf.append(arg1[i]);
                     }
-                    Packet250CustomPayload packet = createDisplayPacket(mode, lifespan, buf.toString());
+                    String text = buf.toString();
+                    BilicraftComments.logger.log(LevelComment.comment, String.format("[CONSOLE](target:%s) [mode:%d] [lifespan:%d] %s", arg1[0], mode, lifespan, text));
+                    Packet250CustomPayload packet = createDisplayPacket(mode, lifespan, text);
                     for (EntityPlayerMP player : players)
                         player.playerNetServerHandler.sendPacketToPlayer(packet);
                 }

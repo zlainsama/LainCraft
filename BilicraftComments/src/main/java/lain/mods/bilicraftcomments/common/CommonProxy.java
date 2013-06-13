@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import lain.mods.bilicraftcomments.BilicraftComments;
+import lain.mods.bilicraftcomments.LevelComment;
 import lain.mods.laincraft.utils.Translator;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.INetworkManager;
@@ -74,6 +75,7 @@ public class CommonProxy
                     if (!BilicraftComments.manager.hasPermission(plr.username, "BcC.colorComments"))
                         text = StringUtils.stripControlCodes(text);
                 }
+                BilicraftComments.logger.log(LevelComment.comment, String.format("[username:%s] [mode:%d] [lifespan:%d] %s", plr.username, mode, lifespan, text));
                 prop.timer.markTime(plr.worldObj.getTotalWorldTime());
                 packet = BilicraftComments.createDisplayPacket(mode, lifespan, EnumChatFormatting.RESET + plr.getTranslatedEntityName() + " > " + text);
                 for (Object o : FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().playerEntityList)
