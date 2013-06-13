@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+import lain.mods.laincraft.utils.ReflectionUtils;
 import lain.mods.laincraft.utils.io.UnicodeInputStreamReader;
 
 public class Config
@@ -151,9 +152,8 @@ public class Config
         }
     }
 
-    private List<Throwable> loadFields()
+    private void loadFields()
     {
-        List<Throwable> throwables = new ArrayList<Throwable>();
         for (Field f : linkedFields.keySet())
         {
             Property info = f.getAnnotation(Property.class);
@@ -161,93 +161,14 @@ public class Config
             if (key.isEmpty())
                 key = f.getName();
             String defaultValue = info.defaultValue();
-            Class type = f.getType();
             if (Modifier.isStatic(f.getModifiers()))
-            {
-                if (int.class.isAssignableFrom(type) || Integer.class.isAssignableFrom(type))
-                    try
-                    {
-                        f.set(null, Integer.parseInt(getProperty(key, defaultValue)));
-                    }
-                    catch (Throwable t)
-                    {
-                        throwables.add(t);
-                    }
-                else if (boolean.class.isAssignableFrom(type) || Boolean.class.isAssignableFrom(type))
-                    try
-                    {
-                        f.set(null, Boolean.parseBoolean(getProperty(key, defaultValue)));
-                    }
-                    catch (Throwable t)
-                    {
-                        throwables.add(t);
-                    }
-                else if (double.class.isAssignableFrom(type) || Double.class.isAssignableFrom(type))
-                    try
-                    {
-                        f.set(null, Double.parseDouble(getProperty(key, defaultValue)));
-                    }
-                    catch (Throwable t)
-                    {
-                        throwables.add(t);
-                    }
-                else if (String.class.isAssignableFrom(type))
-                    try
-                    {
-                        f.set(null, getProperty(key, defaultValue));
-                    }
-                    catch (Throwable t)
-                    {
-                        throwables.add(t);
-                    }
-            }
+                ReflectionUtils.parseField(f, getProperty(key, defaultValue));
             else
-            {
-                if (int.class.isAssignableFrom(type) || Integer.class.isAssignableFrom(type))
-                    for (Object obj : linkedFields.get(f))
-                        try
-                        {
-                            f.set(obj, Integer.parseInt(getProperty(key, defaultValue)));
-                        }
-                        catch (Throwable t)
-                        {
-                            throwables.add(t);
-                        }
-                else if (boolean.class.isAssignableFrom(type) || Boolean.class.isAssignableFrom(type))
-                    for (Object obj : linkedFields.get(f))
-                        try
-                        {
-                            f.set(obj, Boolean.parseBoolean(getProperty(key, defaultValue)));
-                        }
-                        catch (Throwable t)
-                        {
-                            throwables.add(t);
-                        }
-                else if (double.class.isAssignableFrom(type) || Double.class.isAssignableFrom(type))
-                    for (Object obj : linkedFields.get(f))
-                        try
-                        {
-                            f.set(obj, Double.parseDouble(getProperty(key, defaultValue)));
-                        }
-                        catch (Throwable t)
-                        {
-                            throwables.add(t);
-                        }
-                else if (String.class.isAssignableFrom(type))
-                    for (Object obj : linkedFields.get(f))
-                        try
-                        {
-                            f.set(obj, getProperty(key, defaultValue));
-                        }
-                        catch (Throwable t)
-                        {
-                            throwables.add(t);
-                        }
-            }
+                for (Object obj : linkedFields.get(f))
+                    ReflectionUtils.parseField(f, obj, getProperty(key, defaultValue));
             if (f.isAnnotationPresent(SingleComment.class) && props.containsKey(key))
                 props.get(key).comment = f.getAnnotation(SingleComment.class).value();
         }
-        return throwables;
     }
 
     public ConfigProperty put(String key, ConfigProperty property)
@@ -306,11 +227,11 @@ public class Config
                 ConfigProperty prop = get(key);
                 if (prop.comment != null)
                 {
+                    buf.write(newLine);
                     for (String line : lineSplitter.split(prop.comment))
                         buf.write("# " + line + newLine);
                 }
                 buf.write(key + " = " + lineSplitter.matcher(prop.getString()).replaceAll("\\\\n") + newLine);
-                buf.write(newLine);
             }
         }
         catch (IOException e)
@@ -329,9 +250,8 @@ public class Config
         }
     }
 
-    public List<Throwable> saveFields()
+    public void saveFields()
     {
-        List<Throwable> throwables = new ArrayList<Throwable>();
         for (Field f : linkedFields.keySet())
         {
             Property info = f.getAnnotation(Property.class);
@@ -339,89 +259,13 @@ public class Config
             if (key.isEmpty())
                 key = f.getName();
             String defaultValue = info.defaultValue();
-            Class type = f.getType();
             if (Modifier.isStatic(f.getModifiers()))
-            {
-                if (int.class.isAssignableFrom(type) || Integer.class.isAssignableFrom(type))
-                    try
-                    {
-                        setProperty(key, Integer.toString((Integer) f.get(null)));
-                    }
-                    catch (Throwable t)
-                    {
-                        throwables.add(t);
-                    }
-                else if (boolean.class.isAssignableFrom(type) || Boolean.class.isAssignableFrom(type))
-                    try
-                    {
-                        setProperty(key, Boolean.toString((Boolean) f.get(null)));
-                    }
-                    catch (Throwable t)
-                    {
-                        throwables.add(t);
-                    }
-                else if (double.class.isAssignableFrom(type) || Double.class.isAssignableFrom(type))
-                    try
-                    {
-                        setProperty(key, Double.toString((Double) f.get(null)));
-                    }
-                    catch (Throwable t)
-                    {
-                        throwables.add(t);
-                    }
-                else if (String.class.isAssignableFrom(type))
-                    try
-                    {
-                        setProperty(key, (String) f.get(null));
-                    }
-                    catch (Throwable t)
-                    {
-                        throwables.add(t);
-                    }
-            }
-            else
-            {
-                if (int.class.isAssignableFrom(type) || Integer.class.isAssignableFrom(type))
-                    try
-                    {
-                        setProperty(key, Integer.toString((Integer) f.get(linkedFields.get(f).get(0))));
-                    }
-                    catch (Throwable t)
-                    {
-                        throwables.add(t);
-                    }
-                else if (boolean.class.isAssignableFrom(type) || Boolean.class.isAssignableFrom(type))
-                    try
-                    {
-                        setProperty(key, Boolean.toString((Boolean) f.get(linkedFields.get(f).get(0))));
-                    }
-                    catch (Throwable t)
-                    {
-                        throwables.add(t);
-                    }
-                else if (double.class.isAssignableFrom(type) || Double.class.isAssignableFrom(type))
-                    try
-                    {
-                        setProperty(key, Double.toString((Double) f.get(linkedFields.get(f).get(0))));
-                    }
-                    catch (Throwable t)
-                    {
-                        throwables.add(t);
-                    }
-                else if (String.class.isAssignableFrom(type))
-                    try
-                    {
-                        setProperty(key, (String) f.get(linkedFields.get(f).get(0)));
-                    }
-                    catch (Throwable t)
-                    {
-                        throwables.add(t);
-                    }
-            }
+                setProperty(key, ReflectionUtils.toString(f));
+            else if (!linkedFields.get(f).isEmpty())
+                setProperty(key, ReflectionUtils.toString(f, linkedFields.get(f).get(0)));
             if (f.isAnnotationPresent(SingleComment.class) && props.containsKey(key))
                 props.get(key).comment = f.getAnnotation(SingleComment.class).value();
         }
-        return throwables;
     }
 
     public void setProperty(String key, String value)
