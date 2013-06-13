@@ -53,12 +53,12 @@ public class MobControl
         {
             if (!config.containsKey(entityName + ".SPAWN"))
                 config.setProperty(entityName + ".SPAWN", "true");
-            config.get(entityName + ".SPAWN").comment = displayName;
+            // config.get(entityName + ".SPAWN").comment = displayName;
             Spawn.put(entityName, Boolean.parseBoolean(config.getProperty(entityName + ".SPAWN")));
         }
         if (!config.containsKey(entityName + ".HEALTH"))
             config.setProperty(entityName + ".HEALTH", "1.0");
-        config.get(entityName + ".HEALTH").comment = displayName;
+        // config.get(entityName + ".HEALTH").comment = displayName;
         HealthMultiplier.put(entityName, Double.parseDouble(config.getProperty(entityName + ".HEALTH")));
         if (!config.containsKey(entityName + ".DAMAGE"))
             config.setProperty(entityName + ".DAMAGE", "1.0");
@@ -66,7 +66,7 @@ public class MobControl
         DamageMultiplier.put(entityName, Double.parseDouble(config.getProperty(entityName + ".DAMAGE")));
         if (!config.containsKey(entityName + ".INVINCIBILITY"))
             config.setProperty(entityName + ".INVINCIBILITY", "false");
-        config.get(entityName + ".INVINCIBILITY").comment = displayName;
+        // config.get(entityName + ".INVINCIBILITY").comment = displayName;
         Invincibility.put(entityName, Boolean.parseBoolean(config.getProperty(entityName + ".INVINCIBILITY")));
     }
 
