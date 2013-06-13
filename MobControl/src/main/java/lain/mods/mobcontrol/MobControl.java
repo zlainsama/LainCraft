@@ -3,7 +3,6 @@ package lain.mods.mobcontrol;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeSet;
 import lain.mods.laincraft.core.SharedConstants;
 import lain.mods.laincraft.utils.configuration.Config;
 import net.minecraft.entity.Entity;
@@ -12,7 +11,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.Event.Result;
 import net.minecraftforge.event.ForgeSubscribe;
@@ -28,10 +26,23 @@ public class MobControl
 
     private Config config;
 
-    private Map<String, Boolean> Spawn = new HashMap();
-    private Map<String, Double> HealthMultiplier = new HashMap();
-    private Map<String, Double> DamageMultiplier = new HashMap();
-    private Map<String, Boolean> Invincibility = new HashMap();
+    private Controls global = new Controls();
+    private Map<Integer, Controls> overrides = new HashMap();
+
+    public void applyDimensionOverride(int dimension)
+    {
+        Controls override = overrides.get(dimension);
+        if (override == null)
+        {
+            override = new Controls();
+            Config config = new Config(new File(SharedConstants.getLainCraftDirFile(), "MobControl.DIM" + dimension + ".cfg"), "MobControl");
+            config.load();
+            override.load(config, false);
+            config.save();
+            overrides.put(dimension, override);
+        }
+        global.override = override;
+    }
 
     public String getEntityName(EntityLiving ent, boolean flag)
     {
@@ -47,44 +58,11 @@ public class MobControl
         config = new Config(new File(SharedConstants.getLainCraftDirFile(), "MobControl.cfg"), "MobControl");
     }
 
-    public void loadEntitySettings(String entityName, boolean tamed, String displayName)
-    {
-        if (!tamed)
-        {
-            if (!config.containsKey(entityName + ".SPAWN"))
-                config.setProperty(entityName + ".SPAWN", "true");
-            // config.get(entityName + ".SPAWN").comment = displayName;
-            Spawn.put(entityName, Boolean.parseBoolean(config.getProperty(entityName + ".SPAWN")));
-        }
-        if (!config.containsKey(entityName + ".HEALTH"))
-            config.setProperty(entityName + ".HEALTH", "1.0");
-        // config.get(entityName + ".HEALTH").comment = displayName;
-        HealthMultiplier.put(entityName, Double.parseDouble(config.getProperty(entityName + ".HEALTH")));
-        if (!config.containsKey(entityName + ".DAMAGE"))
-            config.setProperty(entityName + ".DAMAGE", "1.0");
-        config.get(entityName + ".DAMAGE").comment = displayName;
-        DamageMultiplier.put(entityName, Double.parseDouble(config.getProperty(entityName + ".DAMAGE")));
-        if (!config.containsKey(entityName + ".INVINCIBILITY"))
-            config.setProperty(entityName + ".INVINCIBILITY", "false");
-        // config.get(entityName + ".INVINCIBILITY").comment = displayName;
-        Invincibility.put(entityName, Boolean.parseBoolean(config.getProperty(entityName + ".INVINCIBILITY")));
-    }
-
     @Mod.PostInit
     public void modsLoaded(FMLPostInitializationEvent event)
     {
         config.load();
-        for (String name : new TreeSet<String>(EntityList.stringToClassMapping.keySet()))
-        {
-            Class cls = (Class) EntityList.stringToClassMapping.get(name);
-            if (EntityLiving.class.isAssignableFrom(cls))
-            {
-                String displayName = StatCollector.translateToLocal("entity." + name + ".name");
-                loadEntitySettings(name, false, displayName);
-                if (EntityTameable.class.isAssignableFrom(cls))
-                    loadEntitySettings(name + ".Tamed", true, displayName);
-            }
-        }
+        global.load(config, true);
         config.save();
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -101,18 +79,20 @@ public class MobControl
             if (ent instanceof EntityLiving && !(ent instanceof EntityPlayer))
             {
                 String n = getEntityName((EntityLiving) ent, true);
-                if (DamageMultiplier.containsKey(n))
-                    d = DamageMultiplier.get(n);
+                applyDimensionOverride(ent.dimension);
+                d = global.getDouble(n, SettingNames.DamageMultiplier);
+                releaseDimensionOverride();
             }
         }
         EntityLiving living = event.entityLiving;
         if (living != null && !(living instanceof EntityPlayer))
         {
+            applyDimensionOverride(living.dimension);
             String n = getEntityName(living, true);
-            if (Invincibility.containsKey(n) && Invincibility.get(n))
+            if (global.getBoolean(n, SettingNames.Invincibility))
                 d = 0.0D;
-            else if (HealthMultiplier.containsKey(n))
-                d = d / HealthMultiplier.get(n);
+            else
+                d = d / global.getDouble(n, SettingNames.HealthMultiplier);
             if (d > 1.0D)
             {
                 double dmg = event.ammount * d * 25D;
@@ -130,15 +110,23 @@ public class MobControl
                 living.carryoverDamage = (int) (dmg % 25D);
                 event.ammount = (int) (dmg / 25D);
             }
+            releaseDimensionOverride();
         }
     }
 
     @ForgeSubscribe
     public void onSpawnCheck(LivingSpawnEvent.CheckSpawn event)
     {
+        applyDimensionOverride(event.world.provider.dimensionId);
         String n = getEntityName(event.entityLiving, false);
-        if (Spawn.containsKey(n) && !Spawn.get(n))
+        if (!global.getBoolean(n, SettingNames.Spawn))
             event.setResult(Result.DENY);
+        releaseDimensionOverride();
+    }
+
+    public void releaseDimensionOverride()
+    {
+        global.override = null;
     }
 
 }
