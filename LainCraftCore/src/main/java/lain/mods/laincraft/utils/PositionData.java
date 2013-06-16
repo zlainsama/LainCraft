@@ -12,7 +12,7 @@ public class PositionData
 
     public static PositionData getSpawnPoint(World par1)
     {
-        PositionData result = new PositionData(par1.getSpawnPoint());
+        PositionData result = new PositionData(par1.provider.getRandomizedSpawnPoint());
         result.dimension = par1.getWorldInfo().getDimension();
         return result;
     }

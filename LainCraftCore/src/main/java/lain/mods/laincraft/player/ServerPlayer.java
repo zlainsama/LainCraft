@@ -103,28 +103,15 @@ public class ServerPlayer extends EntityPlayerMP
     {
         if (flag)
         {
+            if (par2 > 0)
+                regenTimer += 20;
             if (!par1.isUnblockable())
                 par2 = _absorbDamage(this, par2, 0.28D);
             par2 = _absorbDamage(this, par2, 0.40D);
-            regenTimer += hurtResistantTime * 2;
+            if (par2 > 0)
+                regenTimer += 10 + par2 * 10;
         }
         super.damageEntity(par1, par2);
-    }
-
-    @Override
-    public float func_82243_bO()
-    {
-        if (flag)
-            return 0F;
-        return super.func_82243_bO();
-    }
-
-    @Override
-    public boolean isInvisible()
-    {
-        if (flag)
-            return true;
-        return super.isInvisible();
     }
 
     @Override
