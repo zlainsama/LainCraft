@@ -8,6 +8,8 @@ import java.net.URL;
 public class FileLocator
 {
 
+    public static final boolean debug = false;
+
     public static Proxy proxy = Proxy.NO_PROXY;
     public static boolean useCache = true;
     public static int maxAttempts = 3;
@@ -25,7 +27,11 @@ public class FileLocator
         {
             try
             {
-                System.out.println(job.fetch());
+                if (debug)
+                    System.out.println(String.format("fetching%s \'%s\' to \'%s\'", job.getNumAttempts() > 0 ? String.format(" (%d)", job.getNumAttempts()) : "", job.getRemoteFile().getPath(), job.getLocalFile().getPath()));
+                String msg = job.fetch();
+                if (debug)
+                    System.out.println(msg);
                 break;
             }
             catch (Throwable t)

@@ -83,6 +83,11 @@ public class BilicraftComments
         }
     }
 
+    public static String createRequestCommandLine(int mode, int lifespan, String text)
+    {
+        return String.format("/bcc_comment %d %d %s", mode, lifespan, text);
+    }
+
     public static Packet250CustomPayload createRequestPacket(int mode, int lifespan, String text)
     {
         return createPacket("LC|BcC|R", mode, lifespan, text);
@@ -386,6 +391,38 @@ public class BilicraftComments
                 }
                 else
                     throw new WrongUsageException("commands.bcc_blacklist_remove.usage", new Object[0]);
+            }
+        });
+        event.registerServerCommand(new CommandBase()
+        {
+            @Override
+            public boolean canCommandSenderUseCommand(ICommandSender par1ICommandSender)
+            {
+                return par1ICommandSender instanceof EntityPlayerMP;
+            }
+
+            @Override
+            public String getCommandName()
+            {
+                return "bcc_comment";
+            }
+
+            @Override
+            public String getCommandUsage(ICommandSender arg0)
+            {
+                return "for internal usage";
+            }
+
+            @Override
+            public int getRequiredPermissionLevel()
+            {
+                return 0;
+            }
+
+            @Override
+            public void processCommand(ICommandSender arg0, String[] arg1)
+            {
+                proxy.handleCommentRequest((EntityPlayerMP) arg0, arg1);
             }
         });
     }

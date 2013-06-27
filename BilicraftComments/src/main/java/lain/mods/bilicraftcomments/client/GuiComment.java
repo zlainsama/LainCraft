@@ -233,7 +233,8 @@ public class GuiComment extends GuiScreen
         {
             String s = inputField.getText().trim().replace("\u00a7", "&");
             if (s.length() > 0)
-                mc.thePlayer.sendQueue.addToSendQueue(BilicraftComments.createRequestPacket(mode, lifespan, s));
+                mc.thePlayer.sendChatMessage(BilicraftComments.createRequestCommandLine(mode, lifespan, s));
+            // mc.thePlayer.sendQueue.addToSendQueue(BilicraftComments.createRequestPacket(mode, lifespan, s));
             mc.displayGuiScreen(null);
         }
         else if (par2 == 201)
