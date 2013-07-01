@@ -1,16 +1,33 @@
 package net.minecraft.client.gui;
 
 import java.nio.charset.Charset;
+import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 
 public class GuiScreenFix
 {
 
+    private static final boolean flag = "2.9.0".equals(Sys.getVersion());
+
     public static String encoding = Charset.defaultCharset().name();
 
     public static void handleKeyboardInput(GuiScreen gui)
     {
-        if (Keyboard.getEventKeyState())
+        if (flag)
+        {
+            int k = Keyboard.getEventKey();
+            char c = Keyboard.getEventCharacter();
+            if (Keyboard.getEventKeyState() || (c != 0 && Character.isDefined(c)))
+            {
+                if (k == 87)
+                {
+                    gui.mc.toggleFullscreen();
+                    return;
+                }
+                gui.keyTyped(c, k);
+            }
+        }
+        else if (Keyboard.getEventKeyState())
         {
             do
             {
