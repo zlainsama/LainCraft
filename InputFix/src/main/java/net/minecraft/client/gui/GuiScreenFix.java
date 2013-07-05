@@ -7,7 +7,20 @@ import org.lwjgl.input.Keyboard;
 public class GuiScreenFix
 {
 
-    private static final boolean flag = "2.9.0".equals(Sys.getVersion());
+    private static boolean flag;
+
+    static
+    {
+        try
+        {
+            flag = "2.9.0".equals(Sys.getVersion());
+        }
+        catch (Throwable t)
+        {
+            System.err.println(String.format("Error getting lwjgl version: %s", t.toString()));
+            flag = false;
+        }
+    }
 
     public static String encoding = Charset.defaultCharset().name();
 
