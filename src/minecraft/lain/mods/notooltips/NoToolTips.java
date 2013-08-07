@@ -9,8 +9,6 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 public class NoToolTips implements IFMLLoadingPlugin
 {
 
-    public static boolean RUNTIME_DEOBF = true;
-
     @Override
     public String[] getASMTransformerClass()
     {
@@ -38,7 +36,6 @@ public class NoToolTips implements IFMLLoadingPlugin
     @Override
     public void injectData(Map<String, Object> data)
     {
-        RUNTIME_DEOBF = (Boolean) data.get("runtimeDeobfuscationEnabled");
     }
 
 }

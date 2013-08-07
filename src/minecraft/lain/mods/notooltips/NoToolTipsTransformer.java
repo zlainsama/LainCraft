@@ -1,78 +1,75 @@
 package lain.mods.notooltips;
 
-import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
+import com.google.common.collect.Sets;
 
 public class NoToolTipsTransformer implements IClassTransformer
 {
 
-    class a extends ClassVisitor
-    {
-
-        Set<String> names;
-        String cl;
-
-        public a(ClassVisitor cv, String classname)
-        {
-            super(Opcodes.ASM4, cv);
-            cl = FMLDeobfuscatingRemapper.INSTANCE.unmap(classname.replace('.', '/'));
-            names = new HashSet<String>();
-            names.add(NoToolTips.RUNTIME_DEOBF ? "func_111205_h" : "func_111205_h");
-        }
-
-        @Override
-        public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
-        {
-            if (names.contains(FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(cl, name, desc)) && "()Lcom/google/common/collect/Multimap;".equals(desc))
-            {
-                return new b();
-            }
-            return super.visitMethod(access, name, desc, signature, exceptions);
-        }
-
-    }
-
-    class b extends MethodVisitor
-    {
-
-        public b()
-        {
-            super(Opcodes.ASM4, null);
-        }
-
-    }
-
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes)
     {
-        if ("net.minecraft.item.ItemSword".equals(transformedName))
+        if ("net.minecraft.item.ItemStack".equals(transformedName))
             return transform001(bytes);
-        if ("net.minecraft.item.ItemTool".equals(transformedName))
-            return transform002(bytes);
         return bytes;
     }
 
     private byte[] transform001(byte[] bytes)
     {
-        ClassReader classReader = new ClassReader(bytes);
-        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        classReader.accept(new a(classWriter, "net.minecraft.item.ItemSword"), ClassReader.EXPAND_FRAMES);
-        return classWriter.toByteArray();
-    }
+        Set<String> methodNames = Sets.newHashSet("func_82840_a", "getTooltip", "a");
+        Set<String> methodDescs = Sets.newHashSet("(Lnet/minecraft/entity/player/EntityPlayer;Z)Ljava/util/List;", "(Lnet/minecraft/src/EntityPlayer;Z)Ljava/util/List;", "(Lue;Z)Ljava/util/List;");
 
-    private byte[] transform002(byte[] bytes)
-    {
+        Set<String> targetInsnOwners = Sets.newHashSet("net/minecraft/item/ItemStack", "net/minecraft/src/ItemStack", "yd");
+        Set<String> targetInsnNames = Sets.newHashSet("func_111283_C", "D");
+        Set<String> targetInsnDescs = Sets.newHashSet("()Lcom/google/common/collect/Multimap;");
+
+        ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(bytes);
-        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        classReader.accept(new a(classWriter, "net.minecraft.item.ItemTool"), ClassReader.EXPAND_FRAMES);
-        return classWriter.toByteArray();
+        classReader.accept(classNode, 0);
+
+        for (MethodNode methodNode : classNode.methods)
+        {
+            if (methodNames.contains(methodNode.name) && methodDescs.contains(methodNode.desc))
+            {
+                AbstractInsnNode insn = methodNode.instructions.getFirst();
+                boolean foundMethod = false;
+                while (insn != null)
+                {
+                    if (!foundMethod && insn.getType() == AbstractInsnNode.METHOD_INSN)
+                    {
+                        MethodInsnNode mInsn = (MethodInsnNode) insn;
+                        if (targetInsnOwners.contains(mInsn.owner) && targetInsnNames.contains(mInsn.name) && targetInsnDescs.contains(mInsn.desc))
+                            foundMethod = true;
+                    }
+                    if (foundMethod && insn.getType() == AbstractInsnNode.VAR_INSN)
+                    {
+                        VarInsnNode vInsn = (VarInsnNode) insn;
+                        if (vInsn.getOpcode() == Opcodes.ASTORE)
+                        {
+                            VarInsnNode nVInsn = new VarInsnNode(Opcodes.ALOAD, vInsn.var);
+                            MethodInsnNode nMInsn = new MethodInsnNode(Opcodes.INVOKESTATIC, "lain/mods/notooltips/NoToolTipsHandler", "handleAttributesForToolTip", "(Lcom/google/common/collect/Multimap;)V");
+                            methodNode.instructions.insert(insn, nMInsn);
+                            methodNode.instructions.insert(insn, nVInsn);
+                            foundMethod = false;
+                        }
+                    }
+                    insn = insn.getNext();
+                }
+            }
+        }
+
+        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        classNode.accept(writer);
+        return writer.toByteArray();
     }
 
 }

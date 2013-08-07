@@ -15,9 +15,9 @@ public class NoToolTipsDummyContainer extends DummyModContainer
         ModMetadata meta = getMetadata();
         meta.modId = "NoToolTips";
         meta.name = "NoToolTips";
-        meta.version = "1.6.x-v1";
+        meta.version = "1.6.x-v2";
         meta.authorList = Arrays.asList("Lain");
-        meta.description = "NoToolTips removes that annoying tooltips (in tools & swords) introduced in MC 1.6";
+        meta.description = "NoToolTips makes that annoying tooltip (in tools & swords) introduced in MC 1.6 toggleable";
         meta.credits = "";
         meta.url = "https://github.com/zlainsama/laincraft";
         meta.updateUrl = "https://github.com/zlainsama/LainCraft/releases";
