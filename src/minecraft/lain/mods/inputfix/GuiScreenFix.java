@@ -4,13 +4,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import org.lwjgl.LWJGLUtil;
 import org.lwjgl.input.Keyboard;
 
 public class GuiScreenFix
 {
-
-    public static final boolean isMacOS = LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_MACOSX;
 
     private static Field mc;
     private static Method keyTyped;
@@ -36,7 +33,7 @@ public class GuiScreenFix
         {
             int k = Keyboard.getEventKey();
             char c = Keyboard.getEventCharacter();
-            if (Keyboard.getEventKeyState() || ((isMacOS ? c > 0xFF : c != 0) && Character.isDefined(c)))
+            if (Keyboard.getEventKeyState() || (k == 0 && Character.isDefined(c)))
             {
                 if (k == 87)
                 {
