@@ -31,21 +31,21 @@ public class ModCompatibilities
 
     public static void loadActualGameTable(TranslationTable t)
     {
-        LanguageManager manager = FMLClientHandler.instance().getClient().func_135016_M();
-        for (Language lang : (Set<Language>) manager.func_135040_d())
-            loadActualGameTable(t, lang.func_135034_a());
+        LanguageManager manager = FMLClientHandler.instance().getClient().getLanguageManager();
+        for (Language lang : (Set<Language>) manager.getLanguages())
+            loadActualGameTable(t, lang.getLanguageCode());
     }
 
     public static void loadActualGameTable(TranslationTable t, String lang)
     {
-        ResourceManager resources = FMLClientHandler.instance().getClient().func_110442_L();
+        ResourceManager resources = FMLClientHandler.instance().getClient().getResourceManager();
         String n = String.format("lang/%s.lang", lang);
-        for (String respack : (Set<String>) resources.func_135055_a())
+        for (String respack : (Set<String>) resources.getResourceDomains())
         {
             try
             {
-                for (Resource resource : (List<Resource>) resources.func_135056_b(new ResourceLocation(respack, n)))
-                    t.importTranslationFile(resource.func_110527_b(), lang);
+                for (Resource resource : (List<Resource>) resources.getAllResources(new ResourceLocation(respack, n)))
+                    t.importTranslationFile(resource.getInputStream(), lang);
             }
             catch (IOException ignored)
             {
@@ -56,19 +56,19 @@ public class ModCompatibilities
 
     public static void loadVanillaTable(TranslationTable t)
     {
-        LanguageManager manager = FMLClientHandler.instance().getClient().func_135016_M();
-        for (Language lang : (Set<Language>) manager.func_135040_d())
-            loadVanillaTable(t, lang.func_135034_a());
+        LanguageManager manager = FMLClientHandler.instance().getClient().getLanguageManager();
+        for (Language lang : (Set<Language>) manager.getLanguages())
+            loadVanillaTable(t, lang.getLanguageCode());
     }
 
     public static void loadVanillaTable(TranslationTable t, String lang)
     {
-        ResourceManager resources = FMLClientHandler.instance().getClient().func_110442_L();
+        ResourceManager resources = FMLClientHandler.instance().getClient().getResourceManager();
         String n = String.format("lang/%s.lang", lang);
         try
         {
-            for (Resource resource : (List<Resource>) resources.func_135056_b(new ResourceLocation("minecraft", n)))
-                t.importTranslationFile(resource.func_110527_b(), lang);
+            for (Resource resource : (List<Resource>) resources.getAllResources(new ResourceLocation("minecraft", n)))
+                t.importTranslationFile(resource.getInputStream(), lang);
         }
         catch (IOException ignored)
         {
