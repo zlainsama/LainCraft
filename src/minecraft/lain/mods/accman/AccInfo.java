@@ -44,6 +44,7 @@ public final class AccInfo implements Serializable
     public final String encryptedPW;
     public String lastIP = "";
     public long lastSeen = 0L;
+    public transient boolean logon = false;
 
     public AccInfo(String name, String password)
     {

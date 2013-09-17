@@ -1,6 +1,8 @@
 package lain.mods.accman;
 
 import java.util.Set;
+import net.minecraft.client.gui.GuiChat;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.StringUtils;
@@ -76,7 +78,10 @@ public class Limiter
     public void onGuiOpen(GuiOpenEvent event)
     {
         if (event.gui != null && shouldLimitPlayer(FMLClientHandler.instance().getClient().thePlayer))
-            event.gui = new GuiLogin();
+        {
+            if (event.gui instanceof GuiChat || event.gui instanceof GuiInventory)
+                event.gui = new GuiLogin();
+        }
     }
 
     @ForgeSubscribe

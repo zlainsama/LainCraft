@@ -10,14 +10,32 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.INetworkManager;
+import net.minecraft.network.NetLoginHandler;
+import net.minecraft.network.packet.NetHandler;
+import net.minecraft.network.packet.Packet1Login;
+import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.StringUtils;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.MinecraftForge;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
+import cpw.mods.fml.common.IPlayerTracker;
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.event.FMLServerStoppingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppedEvent;
+import cpw.mods.fml.common.network.IConnectionHandler;
+import cpw.mods.fml.common.network.IPacketHandler;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.network.Player;
+import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = "AccMan", name = "Account Manager", version = "1.6.x-v1")
 public class AccMan
@@ -28,10 +46,10 @@ public class AccMan
     private File BackupDir;
 
     private boolean enabled;
-    private boolean disableInSinglePlayerMode;
     private boolean autoBackup;
 
     private Map<String, AccInfo> accs;
+    private Limiter limiter;
 
     private void backup(File dir, File backupDir)
     {
@@ -101,7 +119,6 @@ public class AccMan
         {
             config = new Configuration(configFile);
             enabled = config.get(Configuration.CATEGORY_GENERAL, "enabled", true).getBoolean(true);
-            disableInSinglePlayerMode = config.get(Configuration.CATEGORY_GENERAL, "disableInSinglePlayerMode", true).getBoolean(true);
             autoBackup = config.get(Configuration.CATEGORY_GENERAL, "autoBackup", true).getBoolean(true);
         }
         catch (Exception e)
@@ -116,17 +133,189 @@ public class AccMan
     }
 
     @Mod.EventHandler
+    public void onModLoad(FMLInitializationEvent evetn)
+    {
+        limiter = new Limiter();
+        MinecraftForge.EVENT_BUS.register(limiter);
+        NetworkRegistry.instance().registerConnectionHandler(new IConnectionHandler()
+        {
+            @Override
+            public void playerLoggedIn(Player player, NetHandler netHandler, INetworkManager manager)
+            {
+            }
+
+            @Override
+            public String connectionReceived(NetLoginHandler netHandler, INetworkManager manager)
+            {
+                return null;
+            }
+
+            @Override
+            public void connectionOpened(NetHandler netClientHandler, String server, int port, INetworkManager manager)
+            {
+            }
+
+            @Override
+            public void connectionOpened(NetHandler netClientHandler, MinecraftServer server, INetworkManager manager)
+            {
+            }
+
+            @Override
+            public void connectionClosed(INetworkManager manager)
+            {
+            }
+
+            @Override
+            public void clientLoggedIn(NetHandler clientHandler, INetworkManager manager, Packet1Login login)
+            {
+                limiter.setWhitelistMode(false);
+                limiter.clearList();
+            }
+        });
+        GameRegistry.registerPlayerTracker(new IPlayerTracker()
+        {
+            @Override
+            public void onPlayerLogin(EntityPlayer player)
+            {
+                if (player instanceof EntityPlayerMP)
+                {
+                    EntityPlayerMP plr = (EntityPlayerMP) player;
+                    AccInfo data = getData(plr.username);
+                    if (data != null)
+                    {
+                        if (data.logon && !data.lastIP.equals(plr.playerNetServerHandler.netManager.getSocketAddress().toString()))
+                            data.logon = false;
+                        if (data.logon && Math.abs(data.lastSeen - System.currentTimeMillis()) > 180)
+                            data.logon = false;
+                        syncLimiterStatus(plr);
+                    }
+                }
+            }
+
+            @Override
+            public void onPlayerLogout(EntityPlayer player)
+            {
+                if (player instanceof EntityPlayerMP)
+                {
+                    EntityPlayerMP plr = (EntityPlayerMP) player;
+                    AccInfo data = getData(plr.username);
+                    if (data != null)
+                    {
+                        data.lastIP = plr.playerNetServerHandler.netManager.getSocketAddress().toString();
+                        data.lastSeen = System.currentTimeMillis();
+                    }
+                }
+            }
+
+            @Override
+            public void onPlayerChangedDimension(EntityPlayer player)
+            {
+            }
+
+            @Override
+            public void onPlayerRespawn(EntityPlayer player)
+            {
+            }
+        });
+        NetworkRegistry.instance().registerChannel(new IPacketHandler()
+        {
+            @Override
+            public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player)
+            {
+                try
+                {
+                    limiter.setWhitelistMode("1".equals(new String(packet.data, "UTF-8")));
+                }
+                catch (Exception e)
+                {
+                    logger.severe(String.format("Error reading limiter message: %s", e.toString()));
+                }
+            }
+        }, "ACCMAN|LI", Side.CLIENT);
+        NetworkRegistry.instance().registerChannel(new IPacketHandler()
+        {
+            @Override
+            public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player)
+            {
+                // TODO Auto-generated method stub
+
+            }
+        }, "ACCMAN|LO", Side.SERVER);
+    }
+
+    private void syncLimiterStatus(EntityPlayerMP player)
+    {
+        AccInfo data = getData(player.username);
+        if (data != null)
+        {
+            if (data.logon)
+            {
+                limiter.removeFromList(player);
+                sendLimiterMsg(false, player.playerNetServerHandler.netManager);
+            }
+            else
+            {
+                limiter.addToList(player);
+                sendLimiterMsg(true, player.playerNetServerHandler.netManager);
+            }
+        }
+    }
+
+    private void sendLimiterMsg(boolean whitelistMode, INetworkManager manager)
+    {
+        try
+        {
+            manager.addToSendQueue(new Packet250CustomPayload("ACCMAN|LI", (whitelistMode ? "1" : "0").getBytes("UTF-8")));
+        }
+        catch (Exception e)
+        {
+            logger.severe(String.format("Error sending limiter message: %s", e.toString()));
+        }
+    }
+
+    private void sendLoginMsg(String message, INetworkManager manager)
+    {
+        try
+        {
+            manager.addToSendQueue(new Packet250CustomPayload("ACCMAN|LO", message.getBytes("UTF-8")));
+        }
+        catch (Exception e)
+        {
+            logger.severe(String.format("Error sending login message: %s", e.toString()));
+        }
+    }
+
+    private AccInfo getData(String username)
+    {
+        username = StringUtils.stripControlCodes(username).toLowerCase();
+        if (accs != null)
+        {
+            AccInfo data = accs.get(username);
+            if (data == null)
+            {
+                data = new AccInfo(username, "");
+                accs.put(username, data);
+            }
+            return data;
+        }
+        return null;
+    }
+
+    @Mod.EventHandler
     public void onServerStarting(FMLServerStartingEvent event)
     {
-        if (enabled && (!disableInSinglePlayerMode || !event.getServer().isSinglePlayer()))
+        limiter.setWhitelistMode(false);
+        limiter.clearList();
+        if (enabled/* && !event.getServer().isSinglePlayer() */) // TODO: DEBUG
         {
             accs = Maps.newHashMap();
             load(AccSaveDir);
+            limiter.setWhitelistMode(true);
         }
     }
 
     @Mod.EventHandler
-    public void onServerStopping(FMLServerStoppingEvent event)
+    public void onServerStopped(FMLServerStoppedEvent event)
     {
         if (accs != null)
         {
